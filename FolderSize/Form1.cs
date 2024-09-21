@@ -47,10 +47,10 @@ namespace FolderSize
             progressBar1.Maximum = 1;// iDirCount;
             progressBar1.Step = 1;
             progressBar1.Value = 0;
-            label1.Text = "0";
-            label1.Update();
-            label5.Text = "0";
-            label5.Update();
+            labelTotalSize.Text = "0";
+            labelTotalSize.Update();
+            labelNumFolders.Text = "0";
+            labelNumFolders.Update();
 
             taskStart = DateTime.Now;
             timerTaskDuration.Start();
@@ -68,7 +68,7 @@ namespace FolderSize
 
                     UpdateTree();
                 }
-                label5.Text = progressBar1.Value.ToString() + " / " + progressBar1.Maximum.ToString();
+                labelNumFolders.Text = progressBar1.Value.ToString() + " / " + progressBar1.Maximum.ToString();
                 //label5.Update();
             });
 
@@ -85,14 +85,14 @@ namespace FolderSize
 
         private void UpdateTree()
         {
-            label1.Text = "0";
+            labelTotalSize.Text = "0";
 
             treeView1.BeginUpdate();
             treeView1.Nodes.Clear();
 
             if (m_info != null)
             {
-                label1.Text = m_info.m_totalSize.ToString();// iSize.ToString();
+                labelTotalSize.Text = m_info.m_totalSize.ToString();// iSize.ToString();
 
                 uint level = 0;
                 var rootNode = CreateNewTreeNode(m_info, level);
