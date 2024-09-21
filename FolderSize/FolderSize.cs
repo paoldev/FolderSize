@@ -33,8 +33,8 @@ namespace FolderSize
                     info.UpdateTotalSize();
                     if (!info.m_dummyfolder)
                     {
-                    	m_totalSize += info.m_totalSize;
-                	}
+                        m_totalSize += info.m_totalSize;
+                    }
                 }
             }
         }
@@ -42,7 +42,7 @@ namespace FolderSize
 
         private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<int> i_progress, CancellationToken token)
         {
-			m_size = 0;
+            m_size = 0;
             m_numFiles = 0;
             m_numDirs = 0;
             m_dummyfolder = false;
@@ -54,7 +54,7 @@ namespace FolderSize
                 return;
             }
 
-            System.IO.DirectoryInfo[] dirs = null;
+            System.IO.DirectoryInfo[] dirs;
             try
             {
                 dirs = i_pDirInfo.GetDirectories();
@@ -73,23 +73,26 @@ namespace FolderSize
 
             System.IO.FileInfo[] files = i_pDirInfo.GetFiles();
 
-			m_numFiles = files.Length;
+            m_numFiles = files.Length;
             foreach (System.IO.FileInfo file in files)
             {
                 m_size += file.Length;
             }
 
-            m_subDirs = new List<MyDirInfo>();
+            m_subDirs = [];
             if (m_size > 0)
             {
                 //Dummy directory containing total file size.
-                MyDirInfo info = new MyDirInfo();
-                info.m_name = "<files>";
-                info.m_fullname = System.IO.Path.Combine(i_pDirInfo.FullName, info.m_name);
-                info.m_size = m_size;
-                info.m_totalSize = m_size;
-                info.m_numFiles = m_numFiles;
-                info.m_dummyfolder = true;
+                const string dummyFolderName = "<files>";
+                MyDirInfo info = new()
+                {
+                    m_name = dummyFolderName,
+                    m_fullname = System.IO.Path.Combine(i_pDirInfo.FullName, dummyFolderName),
+                    m_size = m_size,
+                    m_totalSize = m_size,
+                    m_numFiles = m_numFiles,
+                    m_dummyfolder = true
+                };
 
                 m_subDirs.Add(info);
             }
@@ -98,11 +101,13 @@ namespace FolderSize
             {
                 foreach (System.IO.DirectoryInfo dir in dirs)
                 {
-                    MyDirInfo info = new MyDirInfo();
-                    info.m_fullname = dir.FullName;
-                    info.m_name = dir.Name;
-                    info.m_size = 0;
-                    info.m_totalSize = 0;
+                    MyDirInfo info = new()
+                    {
+                        m_fullname = dir.FullName,
+                        m_name = dir.Name,
+                        m_size = 0,
+                        m_totalSize = 0
+                    };
 
                     info.UpdateSubDirectories(dir, i_progress, token);
 
@@ -125,7 +130,7 @@ namespace FolderSize
 
                 try
                 {
-                    System.IO.DirectoryInfo pDir = new System.IO.DirectoryInfo(i_fullname);
+                    System.IO.DirectoryInfo pDir = new(i_fullname);
                     info.UpdateSubDirectories(pDir, i_progress, token);
                     info.UpdateTotalSize();
                     info.SortByTotalSize();
@@ -148,7 +153,7 @@ namespace FolderSize
         {
             if (m_subDirs != null)
             {
-                MyComparer comp = new MyComparer();
+                MyComparer comp = new();
                 m_subDirs.Sort(comp);
 
                 foreach (MyDirInfo dir in m_subDirs)
@@ -180,7 +185,7 @@ namespace FolderSize
 
             try
             {
-                System.IO.DirectoryInfo pDir = new System.IO.DirectoryInfo(i_sDirectory);
+                System.IO.DirectoryInfo pDir = new(i_sDirectory);
                 iNumDirs = 1;
 
                 System.IO.DirectoryInfo[] dirs = pDir.GetDirectories();
@@ -202,7 +207,7 @@ namespace FolderSize
 
             try
             {
-                System.IO.DirectoryInfo pDir = new System.IO.DirectoryInfo(i_sDirectory);
+                System.IO.DirectoryInfo pDir = new(i_sDirectory);
                 System.IO.FileInfo[] files = pDir.GetFiles();
 
                 foreach (System.IO.FileInfo file in files)

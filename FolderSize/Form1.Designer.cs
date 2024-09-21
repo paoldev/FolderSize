@@ -80,7 +80,7 @@
             selectDrive.Name = "selectDrive";
             selectDrive.Size = new System.Drawing.Size(106, 23);
             selectDrive.TabIndex = 0;
-            selectDrive.SelectedIndexChanged += selectDrive_SelectedIndexChanged;
+            selectDrive.SelectedIndexChanged += SelectDrive_SelectedIndexChanged;
             // 
             // treeView1
             // 
@@ -98,7 +98,7 @@
             labelTotalSize.Size = new System.Drawing.Size(13, 15);
             labelTotalSize.TabIndex = 2;
             labelTotalSize.Text = "0";
-            labelTotalSize.Click += label1_Click;
+            labelTotalSize.Click += LabelTotalSize_Click;
             // 
             // progressBar1
             // 
@@ -126,12 +126,12 @@
             buttonCancel.TabIndex = 8;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
-            buttonCancel.Click += buttonCancel_Click;
+            buttonCancel.Click += ButtonCancel_Click;
             // 
             // timerTaskDuration
             // 
             timerTaskDuration.Interval = 1000;
-            timerTaskDuration.Tick += timerTaskDuration_Tick;
+            timerTaskDuration.Tick += TimerTaskDuration_Tick;
             // 
             // labelElapsedTime
             // 

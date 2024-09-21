@@ -24,12 +24,12 @@ namespace FolderSize
             selectDrive.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
         }
 
-        private async void selectDrive_SelectedIndexChanged(object sender, EventArgs e)
+        private async void SelectDrive_SelectedIndexChanged(object sender, EventArgs e)
         {
             await UpdateGUIAsync(selectDrive.Text);
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void LabelTotalSize_Click(object sender, EventArgs e)
         {
 
         }
@@ -127,7 +127,7 @@ namespace FolderSize
             return newNode;
         }
 
-        private void InsertSubDirs(TreeNode i_node, MyDirInfo i_info, uint i_level)
+        private static void InsertSubDirs(TreeNode i_node, MyDirInfo i_info, uint i_level)
         {
             if (i_info.m_subDirs != null)
             {
@@ -193,12 +193,12 @@ namespace FolderSize
         }
         private readonly TaskIsRunningVM taskIsRunningVM = new();
 
-        private void buttonCancel_Click(object sender, EventArgs e)
+        private void ButtonCancel_Click(object sender, EventArgs e)
         {
             tokenSource?.Cancel();
         }
 
-        private void timerTaskDuration_Tick(object sender, EventArgs e)
+        private void TimerTaskDuration_Tick(object sender, EventArgs e)
         {
             UpdateElapsedTime();
         }
