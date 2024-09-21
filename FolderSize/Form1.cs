@@ -44,15 +44,12 @@ namespace FolderSize
 
         private async Task UpdateGUIAsync(string sStartDirectory)
         {
-            //Int64 iSize = DirectoryParser.GetDirectorySize(selectDrive.Text);
-
             taskIsRunningVM.TaskIsRunning = true;
 
             progressBar1.Value = 0;
 
-            //int iDirCount = DirectoryParser.CountDirectories(sStartDirectory);
             progressBar1.Minimum = 0;
-            progressBar1.Maximum = 1;// iDirCount;
+            progressBar1.Maximum = 1;
             progressBar1.Step = 1;
             progressBar1.Value = 0;
             labelTotalSize.Text = "0";
@@ -105,7 +102,7 @@ namespace FolderSize
 
             if (m_info != null)
             {
-                labelTotalSize.Text = m_info.m_totalSize.ToString();// iSize.ToString();
+                labelTotalSize.Text = m_info.m_totalSize.ToString();
 
                 uint level = 0;
                 var rootNode = CreateNewTreeNode(m_info, level);
