@@ -30,6 +30,7 @@ namespace FolderSize
             buttonZoomIn.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
             buttonZoomOut.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
             splitContainer1.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
+            checkBoxSyncViews.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
         }
 
         private async void SelectDrive_SelectedIndexChanged(object sender, EventArgs e)
@@ -327,13 +328,13 @@ namespace FolderSize
             }
         }
 
-        bool bSyncingTrees = false;
+        bool bSyncingViews = false;
 
         private void TreemapControl1_SelectedNodeChanged(object sender, EventArgs e)
         {
-            if (checkBoxSyncTrees.Checked && !bSyncingTrees)
+            if (checkBoxSyncViews.Checked && !bSyncingViews)
             {
-                bSyncingTrees = true;
+                bSyncingViews = true;
 
                 if (treemapControl1.SelectedNode is Node node)
                 {
@@ -341,15 +342,15 @@ namespace FolderSize
                     treeView1.Invalidate();
                 }
 
-                bSyncingTrees = false;
+                bSyncingViews = false;
             }
         }
 
         private void TreeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (checkBoxSyncTrees.Checked && !bSyncingTrees)
+            if (checkBoxSyncViews.Checked && !bSyncingViews)
             {
-                bSyncingTrees = true;
+                bSyncingViews = true;
 
                 if (e.Node is TreeNode node)
                 {
@@ -383,7 +384,7 @@ namespace FolderSize
                     treemapControl1.SelectNode(treeMapNode);
                 }
 
-                bSyncingTrees = false;
+                bSyncingViews = false;
             }
         }
 

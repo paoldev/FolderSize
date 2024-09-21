@@ -46,7 +46,7 @@
             buttonZoomOut = new System.Windows.Forms.Button();
             buttonBack = new System.Windows.Forms.Button();
             buttonForward = new System.Windows.Forms.Button();
-            checkBoxSyncTrees = new System.Windows.Forms.CheckBox();
+            checkBoxSyncViews = new System.Windows.Forms.CheckBox();
             toolTip1 = new System.Windows.Forms.ToolTip(components);
             menuStrip1 = new System.Windows.Forms.MenuStrip();
             fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -108,7 +108,7 @@
             treeView1.Location = new System.Drawing.Point(0, 0);
             treeView1.Name = "treeView1";
             treeView1.ShowNodeToolTips = true;
-            treeView1.Size = new System.Drawing.Size(396, 383);
+            treeView1.Size = new System.Drawing.Size(395, 383);
             treeView1.TabIndex = 1;
             treeView1.AfterSelect += TreeView1_AfterSelect;
             // 
@@ -175,7 +175,7 @@
             // 
             splitContainer1.Panel2.Controls.Add(treemapControl1);
             splitContainer1.Size = new System.Drawing.Size(999, 383);
-            splitContainer1.SplitterDistance = 396;
+            splitContainer1.SplitterDistance = 395;
             splitContainer1.TabIndex = 10;
             // 
             // treemapControl1
@@ -206,7 +206,7 @@
             treemapControl1.SelectedBackColor = System.Drawing.SystemColors.Highlight;
             treemapControl1.SelectedFontColor = System.Drawing.SystemColors.HighlightText;
             treemapControl1.ShowToolTips = true;
-            treemapControl1.Size = new System.Drawing.Size(599, 383);
+            treemapControl1.Size = new System.Drawing.Size(600, 383);
             treemapControl1.TabIndex = 0;
             treemapControl1.TextLocation = Microsoft.Research.CommunityTechnologies.Treemap.TextLocation.Top;
             treemapControl1.NodeDoubleClick += TreemapControl1_NodeDoubleClick;
@@ -260,18 +260,18 @@
             buttonForward.UseVisualStyleBackColor = true;
             buttonForward.Click += ButtonForward_Click;
             // 
-            // checkBoxSyncTrees
+            // checkBoxSyncViews
             // 
-            checkBoxSyncTrees.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            checkBoxSyncTrees.AutoSize = true;
-            checkBoxSyncTrees.Checked = true;
-            checkBoxSyncTrees.CheckState = System.Windows.Forms.CheckState.Checked;
-            checkBoxSyncTrees.Location = new System.Drawing.Point(729, 107);
-            checkBoxSyncTrees.Name = "checkBoxSyncTrees";
-            checkBoxSyncTrees.Size = new System.Drawing.Size(79, 19);
-            checkBoxSyncTrees.TabIndex = 15;
-            checkBoxSyncTrees.Text = "Sync trees";
-            checkBoxSyncTrees.UseVisualStyleBackColor = true;
+            checkBoxSyncViews.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            checkBoxSyncViews.AutoSize = true;
+            checkBoxSyncViews.Checked = true;
+            checkBoxSyncViews.CheckState = System.Windows.Forms.CheckState.Checked;
+            checkBoxSyncViews.Location = new System.Drawing.Point(725, 107);
+            checkBoxSyncViews.Name = "checkBoxSyncViews";
+            checkBoxSyncViews.Size = new System.Drawing.Size(83, 19);
+            checkBoxSyncViews.TabIndex = 15;
+            checkBoxSyncViews.Text = "Sync views";
+            checkBoxSyncViews.UseVisualStyleBackColor = true;
             // 
             // menuStrip1
             // 
@@ -313,7 +313,7 @@
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1023, 531);
-            Controls.Add(checkBoxSyncTrees);
+            Controls.Add(checkBoxSyncViews);
             Controls.Add(buttonForward);
             Controls.Add(buttonBack);
             Controls.Add(buttonZoomOut);
@@ -359,7 +359,7 @@
         private System.Windows.Forms.Button buttonZoomOut;
         private System.Windows.Forms.Button buttonBack;
         private System.Windows.Forms.Button buttonForward;
-        private System.Windows.Forms.CheckBox checkBoxSyncTrees;
+        private System.Windows.Forms.CheckBox checkBoxSyncViews;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
