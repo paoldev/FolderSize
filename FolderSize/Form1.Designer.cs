@@ -48,6 +48,11 @@
             buttonForward = new System.Windows.Forms.Button();
             checkBoxSyncTrees = new System.Windows.Forms.CheckBox();
             toolTip1 = new System.Windows.Forms.ToolTip(components);
+            menuStrip1 = new System.Windows.Forms.MenuStrip();
+            fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
@@ -55,12 +60,13 @@
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(2, 14);
+            label2.Location = new System.Drawing.Point(12, 37);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(67, 15);
             label2.TabIndex = 4;
@@ -69,7 +75,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(206, 14);
+            label3.Location = new System.Drawing.Point(206, 37);
             label3.Name = "label3";
             label3.Size = new System.Drawing.Size(55, 15);
             label3.TabIndex = 5;
@@ -78,7 +84,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new System.Drawing.Point(206, 45);
+            label4.Location = new System.Drawing.Point(206, 68);
             label4.Name = "label4";
             label4.Size = new System.Drawing.Size(63, 15);
             label4.TabIndex = 6;
@@ -88,7 +94,7 @@
             // 
             selectDrive.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             selectDrive.FormattingEnabled = true;
-            selectDrive.Location = new System.Drawing.Point(75, 11);
+            selectDrive.Location = new System.Drawing.Point(85, 34);
             selectDrive.Name = "selectDrive";
             selectDrive.Size = new System.Drawing.Size(106, 23);
             selectDrive.TabIndex = 0;
@@ -102,14 +108,14 @@
             treeView1.Location = new System.Drawing.Point(0, 0);
             treeView1.Name = "treeView1";
             treeView1.ShowNodeToolTips = true;
-            treeView1.Size = new System.Drawing.Size(405, 418);
+            treeView1.Size = new System.Drawing.Size(396, 383);
             treeView1.TabIndex = 1;
             treeView1.AfterSelect += TreeView1_AfterSelect;
             // 
             // labelTotalSize
             // 
             labelTotalSize.AutoSize = true;
-            labelTotalSize.Location = new System.Drawing.Point(287, 14);
+            labelTotalSize.Location = new System.Drawing.Point(287, 37);
             labelTotalSize.Name = "labelTotalSize";
             labelTotalSize.Size = new System.Drawing.Size(13, 15);
             labelTotalSize.TabIndex = 2;
@@ -118,15 +124,15 @@
             // 
             // progressBar1
             // 
-            progressBar1.Location = new System.Drawing.Point(1, 77);
+            progressBar1.Location = new System.Drawing.Point(12, 100);
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new System.Drawing.Size(404, 30);
+            progressBar1.Size = new System.Drawing.Size(393, 30);
             progressBar1.TabIndex = 3;
             // 
             // labelNumFolders
             // 
             labelNumFolders.AutoSize = true;
-            labelNumFolders.Location = new System.Drawing.Point(287, 45);
+            labelNumFolders.Location = new System.Drawing.Point(287, 68);
             labelNumFolders.Name = "labelNumFolders";
             labelNumFolders.Size = new System.Drawing.Size(13, 15);
             labelNumFolders.TabIndex = 7;
@@ -134,7 +140,7 @@
             // 
             // buttonCancel
             // 
-            buttonCancel.Location = new System.Drawing.Point(410, 77);
+            buttonCancel.Location = new System.Drawing.Point(410, 100);
             buttonCancel.Name = "buttonCancel";
             buttonCancel.Size = new System.Drawing.Size(75, 30);
             buttonCancel.TabIndex = 8;
@@ -150,7 +156,7 @@
             // labelElapsedTime
             // 
             labelElapsedTime.AutoSize = true;
-            labelElapsedTime.Location = new System.Drawing.Point(1, 45);
+            labelElapsedTime.Location = new System.Drawing.Point(12, 68);
             labelElapsedTime.Name = "labelElapsedTime";
             labelElapsedTime.Size = new System.Drawing.Size(0, 15);
             labelElapsedTime.TabIndex = 9;
@@ -158,7 +164,7 @@
             // splitContainer1
             // 
             splitContainer1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            splitContainer1.Location = new System.Drawing.Point(1, 113);
+            splitContainer1.Location = new System.Drawing.Point(12, 136);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -168,8 +174,8 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(treemapControl1);
-            splitContainer1.Size = new System.Drawing.Size(1021, 418);
-            splitContainer1.SplitterDistance = 405;
+            splitContainer1.Size = new System.Drawing.Size(999, 383);
+            splitContainer1.SplitterDistance = 396;
             splitContainer1.TabIndex = 10;
             // 
             // treemapControl1
@@ -200,7 +206,7 @@
             treemapControl1.SelectedBackColor = System.Drawing.SystemColors.Highlight;
             treemapControl1.SelectedFontColor = System.Drawing.SystemColors.HighlightText;
             treemapControl1.ShowToolTips = true;
-            treemapControl1.Size = new System.Drawing.Size(612, 418);
+            treemapControl1.Size = new System.Drawing.Size(599, 383);
             treemapControl1.TabIndex = 0;
             treemapControl1.TextLocation = Microsoft.Research.CommunityTechnologies.Treemap.TextLocation.Top;
             treemapControl1.NodeDoubleClick += TreemapControl1_NodeDoubleClick;
@@ -209,7 +215,7 @@
             // buttonZoomIn
             // 
             buttonZoomIn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonZoomIn.Location = new System.Drawing.Point(840, 77);
+            buttonZoomIn.Location = new System.Drawing.Point(829, 100);
             buttonZoomIn.Name = "buttonZoomIn";
             buttonZoomIn.Size = new System.Drawing.Size(41, 30);
             buttonZoomIn.TabIndex = 11;
@@ -221,7 +227,7 @@
             // buttonZoomOut
             // 
             buttonZoomOut.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonZoomOut.Location = new System.Drawing.Point(887, 77);
+            buttonZoomOut.Location = new System.Drawing.Point(876, 100);
             buttonZoomOut.Name = "buttonZoomOut";
             buttonZoomOut.Size = new System.Drawing.Size(41, 30);
             buttonZoomOut.TabIndex = 12;
@@ -233,7 +239,7 @@
             // buttonBack
             // 
             buttonBack.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonBack.Location = new System.Drawing.Point(934, 77);
+            buttonBack.Location = new System.Drawing.Point(923, 100);
             buttonBack.Name = "buttonBack";
             buttonBack.Size = new System.Drawing.Size(41, 30);
             buttonBack.TabIndex = 13;
@@ -245,7 +251,7 @@
             // buttonForward
             // 
             buttonForward.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonForward.Location = new System.Drawing.Point(981, 77);
+            buttonForward.Location = new System.Drawing.Point(970, 100);
             buttonForward.Name = "buttonForward";
             buttonForward.Size = new System.Drawing.Size(41, 30);
             buttonForward.TabIndex = 14;
@@ -260,18 +266,53 @@
             checkBoxSyncTrees.AutoSize = true;
             checkBoxSyncTrees.Checked = true;
             checkBoxSyncTrees.CheckState = System.Windows.Forms.CheckState.Checked;
-            checkBoxSyncTrees.Location = new System.Drawing.Point(740, 84);
+            checkBoxSyncTrees.Location = new System.Drawing.Point(729, 107);
             checkBoxSyncTrees.Name = "checkBoxSyncTrees";
             checkBoxSyncTrees.Size = new System.Drawing.Size(79, 19);
             checkBoxSyncTrees.TabIndex = 15;
             checkBoxSyncTrees.Text = "Sync trees";
             checkBoxSyncTrees.UseVisualStyleBackColor = true;
             // 
+            // menuStrip1
+            // 
+            menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { fileToolStripMenuItem });
+            menuStrip1.Location = new System.Drawing.Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new System.Drawing.Size(1023, 24);
+            menuStrip1.TabIndex = 16;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { aboutToolStripMenuItem, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            fileToolStripMenuItem.Text = "File";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            aboutToolStripMenuItem.Text = "About";
+            aboutToolStripMenuItem.Click += AboutToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new System.Drawing.Size(104, 6);
+            // 
+            // exitToolStripMenuItem
+            // 
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            exitToolStripMenuItem.Text = "Exit";
+            exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1023, 532);
+            ClientSize = new System.Drawing.Size(1023, 531);
             Controls.Add(checkBoxSyncTrees);
             Controls.Add(buttonForward);
             Controls.Add(buttonBack);
@@ -287,6 +328,8 @@
             Controls.Add(progressBar1);
             Controls.Add(labelTotalSize);
             Controls.Add(selectDrive);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
             MinimumSize = new System.Drawing.Size(800, 250);
             Name = "Form1";
             Text = "FolderSize";
@@ -294,6 +337,8 @@
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -316,6 +361,11 @@
         private System.Windows.Forms.Button buttonForward;
         private System.Windows.Forms.CheckBox checkBoxSyncTrees;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 

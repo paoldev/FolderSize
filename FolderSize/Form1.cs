@@ -391,5 +391,19 @@ namespace FolderSize
         }
 
         #endregion
+
+        private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var aboutBox = new AboutBox1
+            {
+                StartPosition = FormStartPosition.CenterParent
+            };
+            aboutBox.ShowDialog(this);
+        }
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
     }
 }
