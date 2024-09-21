@@ -107,9 +107,23 @@ namespace FolderSize
 
         private static TreeNode CreateNewTreeNode(MyDirInfo info, uint level)
         {
-            string name = (level == 0) ? info.m_name : (info.m_name + "       " + (info.m_totalSize / 1024.0 / 1024.0).ToString("F1") + " MB");
+            string link = !string.IsNullOrEmpty(info.m_linkTo) ? $" ({info.m_linkTo})" : (info.m_reparsepoint ? " (<ReparsePoint>)" : string.Empty);
+            string exception = info.m_exception ? " (*)" : "";
+            string name = (level == 0) ? info.m_name : (info.m_name + link + exception + "       " + GetSizeAsString(info.m_totalSize));
 
             var newNode = new TreeNode(name);
+            if (info.m_reparsepoint)
+            {
+                newNode.ForeColor = System.Drawing.Color.Blue;
+            }
+            else if (info.m_exception)
+            {
+                newNode.ForeColor = System.Drawing.Color.Red;
+            }
+            else if (info.m_dummyfolder)
+            {
+                newNode.ForeColor = System.Drawing.Color.Green;
+            }
             return newNode;
         }
 
@@ -125,6 +139,24 @@ namespace FolderSize
 
                     InsertSubDirs(treeNode, info, i_level + 1);
                 }
+            }
+        }
+
+        private static string GetSizeAsString(long size)
+        {
+            const long OneMB = 1024 * 1024;
+            const long OneKB = 1024;
+            if (size >= OneMB)
+            {
+                return (size / 1024.0 / 1024.0).ToString("F1") + " MB";
+            }
+            else if (size >= OneKB)
+            {
+                return (size / 1024.0).ToString("F1") + " KB";
+            }
+            else
+            {
+                return size.ToString() + " B";
             }
         }
 
