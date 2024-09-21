@@ -1,18 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FolderSize
 {
     public class MyDirInfo
     {
-        public Int64 m_size;
-        public Int64 m_totalSize;
+        public Int64 m_size = 0;
+        public Int64 m_totalSize = 0;
         public string m_name;
         public string m_fullname;
 
         public List<MyDirInfo> m_subDirs;
 
-        public void UpdateTotalSize()
+        private MyDirInfo() { }
+
+        private void UpdateTotalSize()
         {
             m_totalSize = m_size;
 
@@ -26,13 +30,8 @@ namespace FolderSize
             }
         }
 
-        void UpdateProgressText(System.Windows.Forms.ProgressBar i_progress, System.Windows.Forms.Label i_directories)
-        {
-            i_directories.Text = i_progress.Value.ToString() + " / " + i_progress.Maximum.ToString();
-            i_directories.Update();
-        }
 
-        void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, System.Windows.Forms.ProgressBar i_progress, System.Windows.Forms.Label i_directories)
+        private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<int> i_progress, CancellationToken token)
         {
             m_size = 0;
 
@@ -46,9 +45,9 @@ namespace FolderSize
                 return;
             }
 
-            i_progress.Maximum = i_progress.Maximum + dirs.Length;
-            i_progress.PerformStep();
-            UpdateProgressText(i_progress, i_directories);
+            i_progress.Report(dirs.Length);
+
+            token.ThrowIfCancellationRequested();
 
             System.IO.FileInfo[] files = i_pDirInfo.GetFiles();
 
@@ -68,36 +67,47 @@ namespace FolderSize
                     info.m_size = 0;
                     info.m_totalSize = 0;
 
-                    info.UpdateSubDirectories(dir, i_progress, i_directories);
+                    info.UpdateSubDirectories(dir, i_progress, token);
 
                     m_subDirs.Add(info);
                 }
             }
         }
 
-        public void UpdateSubDirectories(string i_fullname, System.Windows.Forms.ProgressBar i_progress, System.Windows.Forms.Label i_directories)
+        public static Task<MyDirInfo> UpdateSubDirectoriesAsync(string i_fullname, IProgress<int> i_progress, CancellationToken token)
         {
-            m_name = i_fullname;
-            m_fullname = i_fullname;
-            m_size = 0;
-            m_totalSize = 0;
-
-            try
+            return Task.Run(() =>
             {
-                System.IO.DirectoryInfo pDir = new System.IO.DirectoryInfo(i_fullname);
-                UpdateSubDirectories(pDir, i_progress, i_directories);
-                UpdateTotalSize();
-                SortByTotalSize();
+                var info = new MyDirInfo()
+                {
+                    m_name = i_fullname,
+                    m_fullname = i_fullname,
+                    m_size = 0,
+                    m_totalSize = 0
+                };
 
-                i_progress.Value = i_progress.Maximum;
-                UpdateProgressText(i_progress, i_directories);
-            }
-            catch
-            {
-            }
+                try
+                {
+                    System.IO.DirectoryInfo pDir = new System.IO.DirectoryInfo(i_fullname);
+                    info.UpdateSubDirectories(pDir, i_progress, token);
+                    info.UpdateTotalSize();
+                    info.SortByTotalSize();
+                }
+                catch (OperationCanceledException)
+                {
+                    //Update some infos
+                    info.UpdateTotalSize();
+                    info.SortByTotalSize();
+                }
+                catch
+                {
+                }
+
+                return info;
+            });
         }
 
-        public void SortByTotalSize()
+        private void SortByTotalSize()
         {
             if (m_subDirs != null)
             {

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.Windows.Forms.Label label2;
             System.Windows.Forms.Label label3;
             System.Windows.Forms.Label label4;
@@ -36,6 +37,9 @@
             label1 = new System.Windows.Forms.Label();
             progressBar1 = new System.Windows.Forms.ProgressBar();
             label5 = new System.Windows.Forms.Label();
+            buttonCancel = new System.Windows.Forms.Button();
+            timerTaskDuration = new System.Windows.Forms.Timer(components);
+            labelElapsedTime = new System.Windows.Forms.Label();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
@@ -44,7 +48,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new System.Drawing.Point(-2, 14);
+            label2.Location = new System.Drawing.Point(2, 14);
             label2.Name = "label2";
             label2.Size = new System.Drawing.Size(67, 15);
             label2.TabIndex = 4;
@@ -110,11 +114,36 @@
             label5.TabIndex = 7;
             label5.Text = "0";
             // 
+            // buttonCancel
+            // 
+            buttonCancel.Location = new System.Drawing.Point(448, 10);
+            buttonCancel.Name = "buttonCancel";
+            buttonCancel.Size = new System.Drawing.Size(75, 23);
+            buttonCancel.TabIndex = 8;
+            buttonCancel.Text = "Cancel";
+            buttonCancel.UseVisualStyleBackColor = true;
+            buttonCancel.Click += buttonCancel_Click;
+            // 
+            // timerTaskDuration
+            // 
+            timerTaskDuration.Interval = 1000;
+            timerTaskDuration.Tick += timerTaskDuration_Tick;
+            // 
+            // labelElapsedTime
+            // 
+            labelElapsedTime.AutoSize = true;
+            labelElapsedTime.Location = new System.Drawing.Point(1, 45);
+            labelElapsedTime.Name = "labelElapsedTime";
+            labelElapsedTime.Size = new System.Drawing.Size(0, 15);
+            labelElapsedTime.TabIndex = 9;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(524, 472);
+            Controls.Add(labelElapsedTime);
+            Controls.Add(buttonCancel);
             Controls.Add(label5);
             Controls.Add(label4);
             Controls.Add(label3);
@@ -136,6 +165,9 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button buttonCancel;
+        private System.Windows.Forms.Timer timerTaskDuration;
+        private System.Windows.Forms.Label labelElapsedTime;
     }
 }
 
