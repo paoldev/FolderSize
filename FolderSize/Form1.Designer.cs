@@ -40,9 +40,21 @@
             buttonCancel = new System.Windows.Forms.Button();
             timerTaskDuration = new System.Windows.Forms.Timer(components);
             labelElapsedTime = new System.Windows.Forms.Label();
+            splitContainer1 = new System.Windows.Forms.SplitContainer();
+            treemapControl1 = new Microsoft.Research.CommunityTechnologies.Treemap.TreemapControl();
+            buttonZoomIn = new System.Windows.Forms.Button();
+            buttonZoomOut = new System.Windows.Forms.Button();
+            buttonBack = new System.Windows.Forms.Button();
+            buttonForward = new System.Windows.Forms.Button();
+            checkBoxSyncTrees = new System.Windows.Forms.CheckBox();
+            toolTip1 = new System.Windows.Forms.ToolTip(components);
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
             SuspendLayout();
             // 
             // label2
@@ -84,11 +96,15 @@
             // 
             // treeView1
             // 
-            treeView1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
-            treeView1.Location = new System.Drawing.Point(1, 112);
+            treeView1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            treeView1.HideSelection = false;
+            treeView1.Location = new System.Drawing.Point(0, 0);
             treeView1.Name = "treeView1";
-            treeView1.Size = new System.Drawing.Size(523, 359);
+            treeView1.ShowNodeToolTips = true;
+            treeView1.Size = new System.Drawing.Size(405, 418);
             treeView1.TabIndex = 1;
+            treeView1.AfterSelect += TreeView1_AfterSelect;
             // 
             // labelTotalSize
             // 
@@ -102,10 +118,9 @@
             // 
             // progressBar1
             // 
-            progressBar1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
             progressBar1.Location = new System.Drawing.Point(1, 77);
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new System.Drawing.Size(522, 30);
+            progressBar1.Size = new System.Drawing.Size(404, 30);
             progressBar1.TabIndex = 3;
             // 
             // labelNumFolders
@@ -119,10 +134,9 @@
             // 
             // buttonCancel
             // 
-            buttonCancel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            buttonCancel.Location = new System.Drawing.Point(448, 10);
+            buttonCancel.Location = new System.Drawing.Point(410, 77);
             buttonCancel.Name = "buttonCancel";
-            buttonCancel.Size = new System.Drawing.Size(75, 23);
+            buttonCancel.Size = new System.Drawing.Size(75, 30);
             buttonCancel.TabIndex = 8;
             buttonCancel.Text = "Cancel";
             buttonCancel.UseVisualStyleBackColor = true;
@@ -141,11 +155,129 @@
             labelElapsedTime.Size = new System.Drawing.Size(0, 15);
             labelElapsedTime.TabIndex = 9;
             // 
+            // splitContainer1
+            // 
+            splitContainer1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            splitContainer1.Location = new System.Drawing.Point(1, 113);
+            splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            splitContainer1.Panel1.Controls.Add(treeView1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(treemapControl1);
+            splitContainer1.Size = new System.Drawing.Size(1021, 418);
+            splitContainer1.SplitterDistance = 405;
+            splitContainer1.TabIndex = 10;
+            // 
+            // treemapControl1
+            // 
+            treemapControl1.AllowDrag = false;
+            treemapControl1.BorderColor = System.Drawing.SystemColors.WindowFrame;
+            treemapControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            treemapControl1.DiscreteNegativeColors = 20;
+            treemapControl1.DiscretePositiveColors = 20;
+            treemapControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            treemapControl1.EmptySpaceLocation = Microsoft.Research.CommunityTechnologies.Treemap.EmptySpaceLocation.DeterminedByLayoutAlgorithm;
+            treemapControl1.FontFamily = "Arial";
+            treemapControl1.FontSolidColor = System.Drawing.SystemColors.WindowText;
+            treemapControl1.IsZoomable = true;
+            treemapControl1.LayoutAlgorithm = Microsoft.Research.CommunityTechnologies.Treemap.LayoutAlgorithm.TopWeightedSquarified;
+            treemapControl1.Location = new System.Drawing.Point(0, 0);
+            treemapControl1.MaxColor = System.Drawing.Color.Green;
+            treemapControl1.MaxColorMetric = 100F;
+            treemapControl1.MinColor = System.Drawing.Color.Red;
+            treemapControl1.MinColorMetric = -100F;
+            treemapControl1.Name = "treemapControl1";
+            treemapControl1.NodeColorAlgorithm = Microsoft.Research.CommunityTechnologies.Treemap.NodeColorAlgorithm.UseColorMetric;
+            treemapControl1.NodeLevelsWithText = Microsoft.Research.CommunityTechnologies.Treemap.NodeLevelsWithText.All;
+            treemapControl1.PaddingDecrementPerLevelPx = 1;
+            treemapControl1.PaddingPx = 5;
+            treemapControl1.PenWidthDecrementPerLevelPx = 1;
+            treemapControl1.PenWidthPx = 3;
+            treemapControl1.SelectedBackColor = System.Drawing.SystemColors.Highlight;
+            treemapControl1.SelectedFontColor = System.Drawing.SystemColors.HighlightText;
+            treemapControl1.ShowToolTips = true;
+            treemapControl1.Size = new System.Drawing.Size(612, 418);
+            treemapControl1.TabIndex = 0;
+            treemapControl1.TextLocation = Microsoft.Research.CommunityTechnologies.Treemap.TextLocation.Top;
+            treemapControl1.NodeDoubleClick += TreemapControl1_NodeDoubleClick;
+            treemapControl1.SelectedNodeChanged += TreemapControl1_SelectedNodeChanged;
+            // 
+            // buttonZoomIn
+            // 
+            buttonZoomIn.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            buttonZoomIn.Location = new System.Drawing.Point(840, 77);
+            buttonZoomIn.Name = "buttonZoomIn";
+            buttonZoomIn.Size = new System.Drawing.Size(41, 30);
+            buttonZoomIn.TabIndex = 11;
+            buttonZoomIn.Text = "+";
+            toolTip1.SetToolTip(buttonZoomIn, "Zoom In");
+            buttonZoomIn.UseVisualStyleBackColor = true;
+            buttonZoomIn.Click += ButtonZoomIn_Click;
+            // 
+            // buttonZoomOut
+            // 
+            buttonZoomOut.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            buttonZoomOut.Location = new System.Drawing.Point(887, 77);
+            buttonZoomOut.Name = "buttonZoomOut";
+            buttonZoomOut.Size = new System.Drawing.Size(41, 30);
+            buttonZoomOut.TabIndex = 12;
+            buttonZoomOut.Text = "-";
+            toolTip1.SetToolTip(buttonZoomOut, "Zoom Out");
+            buttonZoomOut.UseVisualStyleBackColor = true;
+            buttonZoomOut.Click += ButtonZoomOut_Click;
+            // 
+            // buttonBack
+            // 
+            buttonBack.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            buttonBack.Location = new System.Drawing.Point(934, 77);
+            buttonBack.Name = "buttonBack";
+            buttonBack.Size = new System.Drawing.Size(41, 30);
+            buttonBack.TabIndex = 13;
+            buttonBack.Text = "<";
+            toolTip1.SetToolTip(buttonBack, "Back");
+            buttonBack.UseVisualStyleBackColor = true;
+            buttonBack.Click += ButtonBack_Click;
+            // 
+            // buttonForward
+            // 
+            buttonForward.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            buttonForward.Location = new System.Drawing.Point(981, 77);
+            buttonForward.Name = "buttonForward";
+            buttonForward.Size = new System.Drawing.Size(41, 30);
+            buttonForward.TabIndex = 14;
+            buttonForward.Text = ">";
+            toolTip1.SetToolTip(buttonForward, "Forward");
+            buttonForward.UseVisualStyleBackColor = true;
+            buttonForward.Click += ButtonForward_Click;
+            // 
+            // checkBoxSyncTrees
+            // 
+            checkBoxSyncTrees.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            checkBoxSyncTrees.AutoSize = true;
+            checkBoxSyncTrees.Checked = true;
+            checkBoxSyncTrees.CheckState = System.Windows.Forms.CheckState.Checked;
+            checkBoxSyncTrees.Location = new System.Drawing.Point(740, 84);
+            checkBoxSyncTrees.Name = "checkBoxSyncTrees";
+            checkBoxSyncTrees.Size = new System.Drawing.Size(79, 19);
+            checkBoxSyncTrees.TabIndex = 15;
+            checkBoxSyncTrees.Text = "Sync trees";
+            checkBoxSyncTrees.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(524, 472);
+            ClientSize = new System.Drawing.Size(1023, 532);
+            Controls.Add(checkBoxSyncTrees);
+            Controls.Add(buttonForward);
+            Controls.Add(buttonBack);
+            Controls.Add(buttonZoomOut);
+            Controls.Add(buttonZoomIn);
+            Controls.Add(splitContainer1);
             Controls.Add(labelElapsedTime);
             Controls.Add(buttonCancel);
             Controls.Add(labelNumFolders);
@@ -154,10 +286,14 @@
             Controls.Add(label2);
             Controls.Add(progressBar1);
             Controls.Add(labelTotalSize);
-            Controls.Add(treeView1);
             Controls.Add(selectDrive);
+            MinimumSize = new System.Drawing.Size(800, 250);
             Name = "Form1";
             Text = "FolderSize";
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -172,6 +308,14 @@
         private System.Windows.Forms.Button buttonCancel;
         private System.Windows.Forms.Timer timerTaskDuration;
         private System.Windows.Forms.Label labelElapsedTime;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private Microsoft.Research.CommunityTechnologies.Treemap.TreemapControl treemapControl1;
+        private System.Windows.Forms.Button buttonZoomIn;
+        private System.Windows.Forms.Button buttonZoomOut;
+        private System.Windows.Forms.Button buttonBack;
+        private System.Windows.Forms.Button buttonForward;
+        private System.Windows.Forms.CheckBox checkBoxSyncTrees;
+        private System.Windows.Forms.ToolTip toolTip1;
     }
 }
 

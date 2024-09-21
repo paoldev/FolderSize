@@ -39,9 +39,9 @@ namespace FolderSize
             }
         }
 
-
-        private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<int> i_progress, CancellationToken token)
+        private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<int> i_progress, uint i_level, ref uint o_maxLevel, CancellationToken token)
         {
+            o_maxLevel = Math.Max(i_level, o_maxLevel);
             m_size = 0;
             m_numFiles = 0;
             m_numDirs = 0;
@@ -109,17 +109,19 @@ namespace FolderSize
                         m_totalSize = 0
                     };
 
-                    info.UpdateSubDirectories(dir, i_progress, token);
+                    info.UpdateSubDirectories(dir, i_progress, i_level + 1, ref o_maxLevel, token);
 
                     m_subDirs.Add(info);
                 }
             }
         }
 
-        public static Task<MyDirInfo> UpdateSubDirectoriesAsync(string i_fullname, IProgress<int> i_progress, CancellationToken token)
+        public static Task<(MyDirInfo, uint)> UpdateSubDirectoriesAsync(string i_fullname, IProgress<int> i_progress, CancellationToken token)
         {
             return Task.Run(() =>
             {
+                uint maxLevel = 1;
+
                 var info = new MyDirInfo()
                 {
                     m_name = i_fullname,
@@ -130,8 +132,10 @@ namespace FolderSize
 
                 try
                 {
+                    uint level = 1;
+
                     System.IO.DirectoryInfo pDir = new(i_fullname);
-                    info.UpdateSubDirectories(pDir, i_progress, token);
+                    info.UpdateSubDirectories(pDir, i_progress, level, ref maxLevel, token);
                     info.UpdateTotalSize();
                     info.SortByTotalSize();
                 }
@@ -145,7 +149,7 @@ namespace FolderSize
                 {
                 }
 
-                return info;
+                return (info, maxLevel);
             });
         }
 
