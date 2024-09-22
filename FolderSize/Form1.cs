@@ -72,15 +72,16 @@ namespace FolderSize
                     //Don't stress UI thread too much.
                     if ((v.NumDirs % 128) == 0)
                     {
-                        progressBar1.Maximum = v.MaxDirs;
+                        progressBar1.Maximum = v.TotalDirs;
                         progressBar1.Value = v.NumDirs;
                         labelTotalSize.Text = $"{GetNumStringWithSep(v.DirsSize)} bytes ({GetSizeAsShortString(v.DirsSize)})";
-                        labelNumFolders.Text = $"{GetNumStringWithSep(v.NumDirs)} / {GetNumStringWithSep(v.MaxDirs)}";
+                        labelNumFolders.Text = $"{GetNumStringWithSep(v.NumDirs)} / {GetNumStringWithSep(v.TotalDirs)}";
                     }
                 }
                 else
                 {
                     progressBar1.Value = progressBar1.Maximum;
+                    labelTotalSize.Text = (m_info == null) ? "0" : $"{GetNumStringWithSep(m_info.TotalFileSize)} bytes ({GetSizeAsShortString(m_info.TotalFileSize)})";
                     labelNumFolders.Text = $"{GetNumStringWithSep(progressBar1.Value)} / {GetNumStringWithSep(progressBar1.Maximum)}";
 
                     UpdateTrees(maxLevel);
@@ -88,7 +89,7 @@ namespace FolderSize
             });
 
             tokenSource = new CancellationTokenSource();
-            (m_info, maxLevel) = await MyDirInfo.UpdateSubDirectoriesAsync(sStartDirectory, progress, tokenSource.Token);
+            (m_info, maxLevel) = await MyDirInfo.GetDirectoryInfoAsync(sStartDirectory, progress, tokenSource.Token);
             await Task.Run(() => { progress.Report(null); });
             tokenSource = null;
 
@@ -100,8 +101,6 @@ namespace FolderSize
 
         private void UpdateTrees(uint i_maxLevel)
         {
-            labelTotalSize.Text = "0";
-
             treeView1.BeginUpdate();
             treemapControl1.BeginUpdate();
 
@@ -110,8 +109,6 @@ namespace FolderSize
 
             if (m_info != null)
             {
-                labelTotalSize.Text = $"{GetNumStringWithSep(m_info.m_totalSize)} bytes ({GetSizeAsShortString(m_info.m_totalSize)})";
-
                 uint level = 0;
                 var rootNode = CreateNewTreeNode(m_info, level);
                 var treeMapNode = CreateNewTreeMapNode(m_info, level, i_maxLevel);
@@ -133,23 +130,23 @@ namespace FolderSize
 
         private static TreeNode CreateNewTreeNode(MyDirInfo info, uint level)
         {
-            string link = !string.IsNullOrEmpty(info.m_linkTo) ? $" ({info.m_linkTo})" : (info.m_reparsepoint ? " (<ReparsePoint>)" : string.Empty);
-            string exception = info.m_exception ? " (*)" : "";
-            string name = (level == 0) ? info.m_name : (info.m_name + link + exception + "       " + GetSizeAsShortString(info.m_totalSize));
+            string link = !string.IsNullOrEmpty(info.LinkTarget) ? $" ({info.LinkTarget})" : (info.IsReparsePoint ? " (<ReparsePoint>)" : string.Empty);
+            string exception = info.HasException ? " (*)" : "";
+            string name = (level == 0) ? info.Name : (info.Name + link + exception + "       " + GetSizeAsShortString(info.TotalFileSize));
 
             var newNode = new TreeNode(name)
             {
                 ToolTipText = GetTooltip(info)
             };
-            if (info.m_reparsepoint)
+            if (info.IsReparsePoint)
             {
                 newNode.ForeColor = System.Drawing.Color.Blue;
             }
-            else if (info.m_exception)
+            else if (info.HasException)
             {
                 newNode.ForeColor = System.Drawing.Color.Red;
             }
-            else if (info.m_dummyfolder)
+            else if (info.IsDummyFolder)
             {
                 newNode.ForeColor = System.Drawing.Color.Green;
             }
@@ -158,37 +155,28 @@ namespace FolderSize
 
         private Node CreateNewTreeMapNode(MyDirInfo info, uint level, uint maxLevel)
         {
-            StringBuilder sbTooltip = new();
-            sbTooltip.AppendLine(info.m_dummyfolder ? Path.GetDirectoryName(info.m_fullname) : info.m_fullname);
-            sbTooltip.AppendLine($"Num files: {info.m_numFiles}");
-            sbTooltip.AppendLine($"Files size: {info.m_size}");
-            if (!info.m_dummyfolder)
-            {
-                sbTooltip.AppendLine($"Num directories: {info.m_numDirs}");
-                sbTooltip.AppendLine($"Directories size: {info.m_totalSize - info.m_size}");
-            }
-            return new Node(info.m_name, info.m_totalSize, LevelToColor(level, maxLevel), null, GetTooltip(info));
+            return new Node(info.Name, info.TotalFileSize, LevelToColor(level, maxLevel), null, GetTooltip(info));
         }
 
         private static string GetTooltip(MyDirInfo info)
         {
             StringBuilder sbTooltip = new();
-            sbTooltip.AppendLine(info.m_dummyfolder ? Path.GetDirectoryName(info.m_fullname) : info.m_fullname);
-            sbTooltip.AppendLine($"Num files: {GetNumStringWithSep(info.m_numFiles)}");
-            sbTooltip.AppendLine($"Files size: {GetNumStringWithSep(info.m_size)} bytes");
-            if (!info.m_dummyfolder)
+            sbTooltip.AppendLine(info.IsDummyFolder ? Path.GetDirectoryName(info.FullName) : info.FullName);
+            sbTooltip.AppendLine($"Num files: {GetNumStringWithSep(info.NumFiles)}");
+            sbTooltip.AppendLine($"Files size: {GetNumStringWithSep(info.DirFileSize)} bytes");
+            if (!info.IsDummyFolder)
             {
-                sbTooltip.AppendLine($"Num directories: {GetNumStringWithSep(info.m_numDirs)}");
-                sbTooltip.AppendLine($"Directories size: {GetNumStringWithSep(info.m_totalSize - info.m_size)} bytes");
+                sbTooltip.AppendLine($"Num directories: {GetNumStringWithSep(info.NumDirs)}");
+                sbTooltip.AppendLine($"Directories size: {GetNumStringWithSep(info.SubDirsFileSize)} bytes");
             }
             return sbTooltip.ToString();
         }
 
         private void InsertSubDirs(TreeNode i_node, Node i_mapnode, MyDirInfo i_info, uint i_level, uint i_maxLevel)
         {
-            if (i_info.m_subDirs != null)
+            if (i_info.SubDirs != null)
             {
-                foreach (MyDirInfo info in i_info.m_subDirs)
+                foreach (MyDirInfo info in i_info.SubDirs)
                 {
                     var treeNode = CreateNewTreeNode(info, i_level);
                     var treeMapNode = CreateNewTreeMapNode(info, i_level, i_maxLevel);

@@ -7,162 +7,146 @@ namespace FolderSize
 {
     public class MyDirInfo
     {
-        public Int64 m_size = 0;
-        public Int64 m_totalSize = 0;
-        public Int64 m_numFiles = 0;
-        public Int64 m_numDirs = 0;
-        public string m_name;
-        public string m_fullname;
-        public string m_linkTo = null;
-        public bool m_dummyfolder = false;
-        public bool m_exception = false;
-        public bool m_reparsepoint = false;
+        public Int64 DirFileSize = 0;
+        public Int64 SubDirsFileSize = 0;
+        public Int64 TotalFileSize => DirFileSize + SubDirsFileSize;
+        public Int64 NumFiles = 0;
+        public Int64 NumDirs = 0;
+        public string Name;
+        public string FullName;
+        public string LinkTarget = null;
+        public bool IsDummyFolder = false;
+        public bool HasException = false;
+        public bool IsReparsePoint = false;
 
-        public List<MyDirInfo> m_subDirs;
+        public List<MyDirInfo> SubDirs = [];
 
         public struct ProgressValue
         {
             public int NumDirs;
-            public int MaxDirs;
+            public int TotalDirs;
             public Int64 DirsSize;
         };
 
         private MyDirInfo() { }
 
-        private void UpdateTotalSize()
-        {
-            m_totalSize = m_size;
-
-            if (m_subDirs != null)
-            {
-                foreach (MyDirInfo info in m_subDirs)
-                {
-                    info.UpdateTotalSize();
-                    if (!info.m_dummyfolder)
-                    {
-                        m_totalSize += info.m_totalSize;
-                    }
-                }
-            }
-        }
-
-        private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_level, ref uint o_maxLevel, CancellationToken token)
+        private static MyDirInfo GetDirectoryInfo(System.IO.DirectoryInfo i_dirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_level, ref uint o_maxLevel, CancellationToken token)
         {
             o_maxLevel = Math.Max(i_level, o_maxLevel);
-            m_size = 0;
-            m_numFiles = 0;
-            m_numDirs = 0;
-            m_dummyfolder = false;
-            m_exception = false;
-            m_linkTo = i_pDirInfo.LinkTarget;
-            m_reparsepoint = (i_pDirInfo.Attributes & System.IO.FileAttributes.ReparsePoint) != 0;
-            if (m_reparsepoint)
+
+            var newInfo = new MyDirInfo()
             {
-                return;
+                FullName = i_dirInfo.FullName,
+                Name = i_dirInfo.Name,
+                DirFileSize = 0,
+                SubDirsFileSize = 0,
+                NumFiles = 0,
+                NumDirs = 0,
+                SubDirs = [],
+                IsDummyFolder = false,
+                HasException = false,
+                LinkTarget = i_dirInfo.LinkTarget,
+                IsReparsePoint = (i_dirInfo.Attributes & System.IO.FileAttributes.ReparsePoint) != 0
+            };
+
+            if (newInfo.IsReparsePoint)
+            {
+                return newInfo;
             }
 
             System.IO.DirectoryInfo[] dirs;
+            System.IO.FileInfo[] files;
             try
             {
-                dirs = i_pDirInfo.GetDirectories();
+                dirs = i_dirInfo.GetDirectories();
+                files = i_dirInfo.GetFiles();
             }
             catch
             {
-                m_exception = true;
-                return;
+                newInfo.HasException = true;
+                return newInfo;
             }
 
-            m_numDirs = dirs.Length;
-
-            i_progValue.NumDirs++;
-            i_progValue.MaxDirs += dirs.Length;
-
-            i_progress.Report(i_progValue);
-
-            token.ThrowIfCancellationRequested();
-
-            System.IO.FileInfo[] files = i_pDirInfo.GetFiles();
-
-            m_numFiles = files.Length;
+            newInfo.NumDirs = dirs.Length;
+            newInfo.NumFiles = files.Length;
             foreach (System.IO.FileInfo file in files)
             {
-                m_size += file.Length;
+                newInfo.DirFileSize += file.Length;
             }
 
-            i_progValue.DirsSize += m_size;
+            //TotalDirs is also counting subfolders which are reparse points or that may be unaccessible,
+            //but this value is just a guess for the total number of enumerated directories.
+            i_progValue.TotalDirs += dirs.Length;
+            i_progValue.NumDirs++;
+            i_progValue.DirsSize += newInfo.DirFileSize;
+            i_progress.Report(i_progValue);
 
-            m_subDirs = [];
-            if (m_size > 0)
+            //token.ThrowIfCancellationRequested();
+            if (token.IsCancellationRequested)
+            {
+                return newInfo;
+            }
+
+            if (newInfo.DirFileSize > 0)
             {
                 //Dummy directory containing total file size.
                 const string dummyFolderName = "<files>";
-                MyDirInfo info = new()
+                MyDirInfo subInfo = new()
                 {
-                    m_name = dummyFolderName,
-                    m_fullname = System.IO.Path.Combine(i_pDirInfo.FullName, dummyFolderName),
-                    m_size = m_size,
-                    m_totalSize = m_size,
-                    m_numFiles = m_numFiles,
-                    m_dummyfolder = true
+                    Name = dummyFolderName,
+                    FullName = System.IO.Path.Combine(i_dirInfo.FullName, dummyFolderName),
+                    DirFileSize = newInfo.DirFileSize,
+                    SubDirsFileSize = 0,
+                    NumFiles = newInfo.NumFiles,
+                    NumDirs = 0,
+                    IsDummyFolder = true
                 };
 
-                m_subDirs.Add(info);
+                newInfo.SubDirs.Add(subInfo);
             }
 
-            if (dirs.Length > 0)
+            foreach (System.IO.DirectoryInfo dir in dirs)
             {
-                foreach (System.IO.DirectoryInfo dir in dirs)
-                {
-                    MyDirInfo info = new()
-                    {
-                        m_fullname = dir.FullName,
-                        m_name = dir.Name,
-                        m_size = 0,
-                        m_totalSize = 0
-                    };
+                MyDirInfo subInfo = GetDirectoryInfo(dir, i_progress, ref i_progValue, i_level + 1, ref o_maxLevel, token);
 
-                    info.UpdateSubDirectories(dir, i_progress, ref i_progValue, i_level + 1, ref o_maxLevel, token);
+                newInfo.SubDirsFileSize += subInfo.TotalFileSize;
 
-                    m_subDirs.Add(info);
-                }
+                newInfo.SubDirs.Add(subInfo);
             }
+
+            // Sort SubDirs by TotalFileSize, then by FullName.
+            newInfo.SubDirs.Sort((x, y) =>
+            {
+                if (x.TotalFileSize != y.TotalFileSize)
+                {
+                    return (x.TotalFileSize > y.TotalFileSize) ? -1 : 1;
+                }
+
+                return x.FullName.CompareTo(y.FullName);
+            });
+
+            return newInfo;
         }
 
-        public static Task<(MyDirInfo, uint)> UpdateSubDirectoriesAsync(string i_fullname, IProgress<ProgressValue?> i_progress, CancellationToken token)
+        public static Task<(MyDirInfo, uint)> GetDirectoryInfoAsync(string i_fullname, IProgress<ProgressValue?> i_progress, CancellationToken token)
         {
             return Task.Run(() =>
             {
+                MyDirInfo info = null;
                 uint maxLevel = 1;
-
-                var info = new MyDirInfo()
-                {
-                    m_name = i_fullname,
-                    m_fullname = i_fullname,
-                    m_size = 0,
-                    m_totalSize = 0
-                };
 
                 try
                 {
                     uint level = 1;
 
-                    System.IO.DirectoryInfo pDir = new(i_fullname);
                     ProgressValue progValue = new()
                     {
                         NumDirs = 0,
-                        MaxDirs = 0,
+                        TotalDirs = 1,
                         DirsSize = 0
                     };
-
-                    info.UpdateSubDirectories(pDir, i_progress, ref progValue, level, ref maxLevel, token);
-                    info.UpdateTotalSize();
-                    info.SortByTotalSize();
-                }
-                catch (OperationCanceledException)
-                {
-                    //Update some infos
-                    info.UpdateTotalSize();
-                    info.SortByTotalSize();
+                    System.IO.DirectoryInfo dirInfo = new(i_fullname);
+                    info = GetDirectoryInfo(dirInfo, i_progress, ref progValue, level, ref maxLevel, token);
                 }
                 catch
                 {
@@ -171,32 +155,5 @@ namespace FolderSize
                 return (info, maxLevel);
             });
         }
-
-        private void SortByTotalSize()
-        {
-            if (m_subDirs != null)
-            {
-                MyComparer comp = new();
-                m_subDirs.Sort(comp);
-
-                foreach (MyDirInfo dir in m_subDirs)
-                {
-                    dir.SortByTotalSize();
-                }
-            }
-        }
     };
-
-    public class MyComparer : IComparer<MyDirInfo>
-    {
-        public int Compare(MyDirInfo x, MyDirInfo y)
-        {
-            if (x.m_totalSize != y.m_totalSize)
-            {
-                return (x.m_totalSize > y.m_totalSize) ? -1 : 1;
-            }
-
-            return x.m_fullname.CompareTo(y.m_fullname);
-        }
-    }
 }
