@@ -39,11 +39,6 @@ namespace FolderSize
             await UpdateGUIAsync(selectDrive.Text);
         }
 
-        private void LabelTotalSize_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private async Task UpdateGUIAsync(string sStartDirectory)
         {
             taskIsRunningVM.TaskIsRunning = true;

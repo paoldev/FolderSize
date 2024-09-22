@@ -120,7 +120,6 @@
             labelTotalSize.Size = new System.Drawing.Size(13, 15);
             labelTotalSize.TabIndex = 2;
             labelTotalSize.Text = "0";
-            labelTotalSize.Click += LabelTotalSize_Click;
             // 
             // progressBar1
             // 
