@@ -23,7 +23,6 @@
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
     <Authors>paoldev</Authors>
     <Copyright>(C) 2012-2024</Copyright>
     <Description>Folder Size</Description>

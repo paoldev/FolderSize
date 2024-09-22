@@ -53,6 +53,8 @@
             aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            buttonRestartAdmin = new System.Windows.Forms.Button();
+            labelAdmin = new System.Windows.Forms.Label();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
@@ -307,11 +309,38 @@
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 
+            // buttonRestartAdmin
+            // 
+            buttonRestartAdmin.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            buttonRestartAdmin.Location = new System.Drawing.Point(782, 34);
+            buttonRestartAdmin.Name = "buttonRestartAdmin";
+            buttonRestartAdmin.Size = new System.Drawing.Size(229, 23);
+            buttonRestartAdmin.TabIndex = 18;
+            buttonRestartAdmin.Text = "To scan more folders, restart as Admin";
+            buttonRestartAdmin.UseVisualStyleBackColor = true;
+            buttonRestartAdmin.Click += ButtonRestartAdmin_Click;
+            // 
+            // labelAdmin
+            // 
+            labelAdmin.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            labelAdmin.AutoSize = true;
+            labelAdmin.BackColor = System.Drawing.Color.Teal;
+            labelAdmin.ForeColor = System.Drawing.Color.White;
+            labelAdmin.Location = new System.Drawing.Point(959, 36);
+            labelAdmin.Name = "labelAdmin";
+            labelAdmin.Padding = new System.Windows.Forms.Padding(3);
+            labelAdmin.Size = new System.Drawing.Size(52, 21);
+            labelAdmin.TabIndex = 19;
+            labelAdmin.Text = "ADMIN";
+            labelAdmin.Visible = false;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(1023, 531);
+            Controls.Add(labelAdmin);
+            Controls.Add(buttonRestartAdmin);
             Controls.Add(checkBoxSyncViews);
             Controls.Add(buttonForward);
             Controls.Add(buttonBack);
@@ -365,6 +394,8 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.Button buttonRestartAdmin;
+        private System.Windows.Forms.Label labelAdmin;
     }
 }
 

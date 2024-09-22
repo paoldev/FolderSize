@@ -1,8 +1,10 @@
 ﻿using Microsoft.Research.CommunityTechnologies.Treemap;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +34,11 @@ namespace FolderSize
             buttonZoomOut.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
             splitContainer1.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
             checkBoxSyncViews.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
+            buttonRestartAdmin.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
+
+            bool bIsAdministator = IsAdministrator();
+            labelAdmin.Visible = bIsAdministator;
+            buttonRestartAdmin.Visible = !bIsAdministator;
         }
 
         private async void SelectDrive_SelectedIndexChanged(object sender, EventArgs e)
@@ -403,5 +410,36 @@ namespace FolderSize
         {
             Application.Exit();
         }
+
+        #region Administrator
+
+        private void ButtonRestartAdmin_Click(object sender, EventArgs e)
+        {
+            ProcessStartInfo currentStartInfo = new(Application.ExecutablePath, Environment.GetCommandLineArgs()[1..])
+            {
+                Verb = "runas",
+                UseShellExecute = true
+            };
+
+            Application.Exit();
+            try
+            {
+                // Operation may be cancelled by the user, in which case a Win32Exception is triggered.
+                Process.Start(currentStartInfo);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+        }
+
+        private static bool IsAdministrator()
+        {
+            using var winIdentity = WindowsIdentity.GetCurrent();
+            var winPrincipal = new WindowsPrincipal(winIdentity);
+            return winPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        #endregion
     }
 }
