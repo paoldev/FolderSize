@@ -20,6 +20,13 @@ namespace FolderSize
 
         public List<MyDirInfo> m_subDirs;
 
+        public struct ProgressValue
+        {
+            public int NumDirs;
+            public int MaxDirs;
+            public Int64 DirsSize;
+        };
+
         private MyDirInfo() { }
 
         private void UpdateTotalSize()
@@ -39,7 +46,7 @@ namespace FolderSize
             }
         }
 
-        private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<int> i_progress, uint i_level, ref uint o_maxLevel, CancellationToken token)
+        private void UpdateSubDirectories(System.IO.DirectoryInfo i_pDirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_level, ref uint o_maxLevel, CancellationToken token)
         {
             o_maxLevel = Math.Max(i_level, o_maxLevel);
             m_size = 0;
@@ -67,7 +74,10 @@ namespace FolderSize
 
             m_numDirs = dirs.Length;
 
-            i_progress.Report(dirs.Length);
+            i_progValue.NumDirs++;
+            i_progValue.MaxDirs += dirs.Length;
+
+            i_progress.Report(i_progValue);
 
             token.ThrowIfCancellationRequested();
 
@@ -78,6 +88,8 @@ namespace FolderSize
             {
                 m_size += file.Length;
             }
+
+            i_progValue.DirsSize += m_size;
 
             m_subDirs = [];
             if (m_size > 0)
@@ -109,14 +121,14 @@ namespace FolderSize
                         m_totalSize = 0
                     };
 
-                    info.UpdateSubDirectories(dir, i_progress, i_level + 1, ref o_maxLevel, token);
+                    info.UpdateSubDirectories(dir, i_progress, ref i_progValue, i_level + 1, ref o_maxLevel, token);
 
                     m_subDirs.Add(info);
                 }
             }
         }
 
-        public static Task<(MyDirInfo, uint)> UpdateSubDirectoriesAsync(string i_fullname, IProgress<int> i_progress, CancellationToken token)
+        public static Task<(MyDirInfo, uint)> UpdateSubDirectoriesAsync(string i_fullname, IProgress<ProgressValue?> i_progress, CancellationToken token)
         {
             return Task.Run(() =>
             {
@@ -135,7 +147,14 @@ namespace FolderSize
                     uint level = 1;
 
                     System.IO.DirectoryInfo pDir = new(i_fullname);
-                    info.UpdateSubDirectories(pDir, i_progress, level, ref maxLevel, token);
+                    ProgressValue progValue = new()
+                    {
+                        NumDirs = 0,
+                        MaxDirs = 0,
+                        DirsSize = 0
+                    };
+
+                    info.UpdateSubDirectories(pDir, i_progress, ref progValue, level, ref maxLevel, token);
                     info.UpdateTotalSize();
                     info.SortByTotalSize();
                 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Research.CommunityTechnologies.Treemap;
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -63,26 +64,32 @@ namespace FolderSize
 
             uint maxLevel = 0;
 
-            var progress = new Progress<int>(addProgressMax =>
+            IProgress<MyDirInfo.ProgressValue?> progress = new Progress<MyDirInfo.ProgressValue?>(value =>
             {
-                if (addProgressMax >= 0)
+                if (value.HasValue)
                 {
-                    progressBar1.Maximum += addProgressMax;
-                    progressBar1.PerformStep();
+                    var v = value.Value;
+                    //Don't stress UI thread too much.
+                    if ((v.NumDirs % 128) == 0)
+                    {
+                        progressBar1.Maximum = v.MaxDirs;
+                        progressBar1.Value = v.NumDirs;
+                        labelTotalSize.Text = $"{GetNumStringWithSep(v.DirsSize)} bytes ({GetSizeAsShortString(v.DirsSize)})";
+                        labelNumFolders.Text = $"{GetNumStringWithSep(v.NumDirs)} / {GetNumStringWithSep(v.MaxDirs)}";
+                    }
                 }
                 else
                 {
                     progressBar1.Value = progressBar1.Maximum;
+                    labelNumFolders.Text = $"{GetNumStringWithSep(progressBar1.Value)} / {GetNumStringWithSep(progressBar1.Maximum)}";
 
                     UpdateTrees(maxLevel);
                 }
-                labelNumFolders.Text = progressBar1.Value.ToString() + " / " + progressBar1.Maximum.ToString();
-                //label5.Update();
             });
 
             tokenSource = new CancellationTokenSource();
             (m_info, maxLevel) = await MyDirInfo.UpdateSubDirectoriesAsync(sStartDirectory, progress, tokenSource.Token);
-            await Task.Run(() => { (progress as IProgress<int>).Report(-1); });
+            await Task.Run(() => { progress.Report(null); });
             tokenSource = null;
 
             timerTaskDuration.Stop();
@@ -103,7 +110,7 @@ namespace FolderSize
 
             if (m_info != null)
             {
-                labelTotalSize.Text = m_info.m_totalSize.ToString();
+                labelTotalSize.Text = $"{GetNumStringWithSep(m_info.m_totalSize)} bytes ({GetSizeAsShortString(m_info.m_totalSize)})";
 
                 uint level = 0;
                 var rootNode = CreateNewTreeNode(m_info, level);
@@ -112,10 +119,12 @@ namespace FolderSize
                 rootNode.Tag = treeMapNode;
                 treeMapNode.Tag = rootNode;
 
+                InsertSubDirs(rootNode, treeMapNode, m_info, level + 1, i_maxLevel);
+
                 treeView1.Nodes.Add(rootNode);
                 treemapControl1.Nodes.Add(treeMapNode);
 
-                InsertSubDirs(rootNode, treeMapNode, m_info, level + 1, i_maxLevel);
+                rootNode.Expand();
             }
 
             treemapControl1.EndUpdate();
@@ -126,7 +135,7 @@ namespace FolderSize
         {
             string link = !string.IsNullOrEmpty(info.m_linkTo) ? $" ({info.m_linkTo})" : (info.m_reparsepoint ? " (<ReparsePoint>)" : string.Empty);
             string exception = info.m_exception ? " (*)" : "";
-            string name = (level == 0) ? info.m_name : (info.m_name + link + exception + "       " + GetSizeAsString(info.m_totalSize));
+            string name = (level == 0) ? info.m_name : (info.m_name + link + exception + "       " + GetSizeAsShortString(info.m_totalSize));
 
             var newNode = new TreeNode(name)
             {
@@ -165,12 +174,12 @@ namespace FolderSize
         {
             StringBuilder sbTooltip = new();
             sbTooltip.AppendLine(info.m_dummyfolder ? Path.GetDirectoryName(info.m_fullname) : info.m_fullname);
-            sbTooltip.AppendLine($"Num files: {info.m_numFiles}");
-            sbTooltip.AppendLine($"Files size: {info.m_size}");
+            sbTooltip.AppendLine($"Num files: {GetNumStringWithSep(info.m_numFiles)}");
+            sbTooltip.AppendLine($"Files size: {GetNumStringWithSep(info.m_size)} bytes");
             if (!info.m_dummyfolder)
             {
-                sbTooltip.AppendLine($"Num directories: {info.m_numDirs}");
-                sbTooltip.AppendLine($"Directories size: {info.m_totalSize - info.m_size}");
+                sbTooltip.AppendLine($"Num directories: {GetNumStringWithSep(info.m_numDirs)}");
+                sbTooltip.AppendLine($"Directories size: {GetNumStringWithSep(info.m_totalSize - info.m_size)} bytes");
             }
             return sbTooltip.ToString();
         }
@@ -195,11 +204,19 @@ namespace FolderSize
             }
         }
 
-        private static string GetSizeAsString(long size)
+        // Although only English UI is available, use CurrentCulture to get thousands' separator.
+        private static string GetNumStringWithSep<T>(T v) => string.Format(CultureInfo.CurrentCulture, "{0:##,0}", v);
+
+        private static string GetSizeAsShortString(long size)
         {
+            const long OneGB = 1024 * 1024 * 1024;
             const long OneMB = 1024 * 1024;
             const long OneKB = 1024;
-            if (size >= OneMB)
+            if (size >= OneGB)
+            {
+                return (size / 1024.0 / 1024.0 / 1024.0).ToString("F1") + " GB";
+            }
+            else if (size >= OneMB)
             {
                 return (size / 1024.0 / 1024.0).ToString("F1") + " MB";
             }
