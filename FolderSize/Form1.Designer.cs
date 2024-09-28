@@ -32,11 +32,18 @@
             System.Windows.Forms.Label label2;
             System.Windows.Forms.Label label3;
             System.Windows.Forms.Label label4;
+            System.Windows.Forms.ToolStripMenuItem legendaToolStripMenuItem;
+            System.Windows.Forms.ToolStripMenuItem normalDirectoriesToolStripMenuItem;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.Windows.Forms.ToolStripMenuItem unaccessibleDirectoriesToolStripMenuItem;
+            System.Windows.Forms.ToolStripMenuItem reparsePointsToolStripMenuItem;
+            System.Windows.Forms.ToolStripMenuItem filesSetsToolStripMenuItem;
             selectDrive = new System.Windows.Forms.ComboBox();
             treeView1 = new System.Windows.Forms.TreeView();
             contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components);
             openInWindowsExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             openInCommandPromptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            openInPowershellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             labelTotalSize = new System.Windows.Forms.Label();
@@ -60,10 +67,14 @@
             exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             buttonRestartAdmin = new System.Windows.Forms.Button();
             labelAdmin = new System.Windows.Forms.Label();
-            openInPowershellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
+            legendaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            normalDirectoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            unaccessibleDirectoriesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            reparsePointsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            filesSetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -99,6 +110,41 @@
             label4.TabIndex = 6;
             label4.Text = "Directories";
             // 
+            // legendaToolStripMenuItem
+            // 
+            legendaToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] { normalDirectoriesToolStripMenuItem, unaccessibleDirectoriesToolStripMenuItem, reparsePointsToolStripMenuItem, filesSetsToolStripMenuItem });
+            legendaToolStripMenuItem.Name = "legendaToolStripMenuItem";
+            legendaToolStripMenuItem.Size = new System.Drawing.Size(87, 20);
+            legendaToolStripMenuItem.Text = "Color legend";
+            // 
+            // normalDirectoriesToolStripMenuItem
+            // 
+            normalDirectoriesToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("normalDirectoriesToolStripMenuItem.Image");
+            normalDirectoriesToolStripMenuItem.Name = "normalDirectoriesToolStripMenuItem";
+            normalDirectoriesToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            normalDirectoriesToolStripMenuItem.Text = "Normal directories";
+            // 
+            // unaccessibleDirectoriesToolStripMenuItem
+            // 
+            unaccessibleDirectoriesToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("unaccessibleDirectoriesToolStripMenuItem.Image");
+            unaccessibleDirectoriesToolStripMenuItem.Name = "unaccessibleDirectoriesToolStripMenuItem";
+            unaccessibleDirectoriesToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            unaccessibleDirectoriesToolStripMenuItem.Text = "Inaccessible directories";
+            // 
+            // reparsePointsToolStripMenuItem
+            // 
+            reparsePointsToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("reparsePointsToolStripMenuItem.Image");
+            reparsePointsToolStripMenuItem.Name = "reparsePointsToolStripMenuItem";
+            reparsePointsToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            reparsePointsToolStripMenuItem.Text = "Reparse points";
+            // 
+            // filesSetsToolStripMenuItem
+            // 
+            filesSetsToolStripMenuItem.Image = (System.Drawing.Image)resources.GetObject("filesSetsToolStripMenuItem.Image");
+            filesSetsToolStripMenuItem.Name = "filesSetsToolStripMenuItem";
+            filesSetsToolStripMenuItem.Size = new System.Drawing.Size(195, 22);
+            filesSetsToolStripMenuItem.Text = "Files sets";
+            // 
             // selectDrive
             // 
             selectDrive.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -125,7 +171,7 @@
             // 
             contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { openInWindowsExplorerToolStripMenuItem, openInCommandPromptToolStripMenuItem, openInPowershellToolStripMenuItem, toolStripSeparator2, propertiesToolStripMenuItem });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new System.Drawing.Size(230, 120);
+            contextMenuStrip1.Size = new System.Drawing.Size(230, 98);
             // 
             // openInWindowsExplorerToolStripMenuItem
             // 
@@ -140,6 +186,13 @@
             openInCommandPromptToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
             openInCommandPromptToolStripMenuItem.Text = "Open in Command Prompt";
             openInCommandPromptToolStripMenuItem.Click += OpenInCommandPromptToolStripMenuItem_Click;
+            // 
+            // openInPowershellToolStripMenuItem
+            // 
+            openInPowershellToolStripMenuItem.Name = "openInPowershellToolStripMenuItem";
+            openInPowershellToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            openInPowershellToolStripMenuItem.Text = "Open in Windows PowerShell";
+            openInPowershellToolStripMenuItem.Click += OpenInPowershellToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
@@ -316,7 +369,7 @@
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { fileToolStripMenuItem });
+            menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { fileToolStripMenuItem, legendaToolStripMenuItem });
             menuStrip1.Location = new System.Drawing.Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new System.Drawing.Size(1023, 24);
@@ -373,13 +426,6 @@
             labelAdmin.TabIndex = 19;
             labelAdmin.Text = "ADMIN";
             labelAdmin.Visible = false;
-            // 
-            // openInPowershellToolStripMenuItem
-            // 
-            openInPowershellToolStripMenuItem.Name = "openInPowershellToolStripMenuItem";
-            openInPowershellToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
-            openInPowershellToolStripMenuItem.Text = "Open in Windows PowerShell";
-            openInPowershellToolStripMenuItem.Click += OpenInPowershellToolStripMenuItem_Click;
             // 
             // Form1
             // 
