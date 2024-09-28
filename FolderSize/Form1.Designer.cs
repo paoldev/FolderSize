@@ -34,6 +34,11 @@
             System.Windows.Forms.Label label4;
             selectDrive = new System.Windows.Forms.ComboBox();
             treeView1 = new System.Windows.Forms.TreeView();
+            contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(components);
+            openInWindowsExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            openInCommandPromptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             labelTotalSize = new System.Windows.Forms.Label();
             progressBar1 = new System.Windows.Forms.ProgressBar();
             labelNumFolders = new System.Windows.Forms.Label();
@@ -55,9 +60,11 @@
             exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             buttonRestartAdmin = new System.Windows.Forms.Button();
             labelAdmin = new System.Windows.Forms.Label();
+            openInPowershellToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             label2 = new System.Windows.Forms.Label();
             label3 = new System.Windows.Forms.Label();
             label4 = new System.Windows.Forms.Label();
+            contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -113,6 +120,38 @@
             treeView1.Size = new System.Drawing.Size(395, 383);
             treeView1.TabIndex = 1;
             treeView1.AfterSelect += TreeView1_AfterSelect;
+            // 
+            // contextMenuStrip1
+            // 
+            contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] { openInWindowsExplorerToolStripMenuItem, openInCommandPromptToolStripMenuItem, openInPowershellToolStripMenuItem, toolStripSeparator2, propertiesToolStripMenuItem });
+            contextMenuStrip1.Name = "contextMenuStrip1";
+            contextMenuStrip1.Size = new System.Drawing.Size(230, 120);
+            // 
+            // openInWindowsExplorerToolStripMenuItem
+            // 
+            openInWindowsExplorerToolStripMenuItem.Name = "openInWindowsExplorerToolStripMenuItem";
+            openInWindowsExplorerToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            openInWindowsExplorerToolStripMenuItem.Text = "Open in Windows Explorer";
+            openInWindowsExplorerToolStripMenuItem.Click += OpenInWindowsExplorerToolStripMenuItem_Click;
+            // 
+            // openInCommandPromptToolStripMenuItem
+            // 
+            openInCommandPromptToolStripMenuItem.Name = "openInCommandPromptToolStripMenuItem";
+            openInCommandPromptToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            openInCommandPromptToolStripMenuItem.Text = "Open in Command Prompt";
+            openInCommandPromptToolStripMenuItem.Click += OpenInCommandPromptToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new System.Drawing.Size(226, 6);
+            // 
+            // propertiesToolStripMenuItem
+            // 
+            propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
+            propertiesToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            propertiesToolStripMenuItem.Text = "Properties";
+            propertiesToolStripMenuItem.Click += PropertiesToolStripMenuItem_Click;
             // 
             // labelTotalSize
             // 
@@ -210,6 +249,7 @@
             treemapControl1.Size = new System.Drawing.Size(600, 383);
             treemapControl1.TabIndex = 0;
             treemapControl1.TextLocation = Microsoft.Research.CommunityTechnologies.Treemap.TextLocation.Top;
+            treemapControl1.NodeMouseUp += TreemapControl1_NodeMouseUp;
             treemapControl1.NodeDoubleClick += TreemapControl1_NodeDoubleClick;
             treemapControl1.SelectedNodeChanged += TreemapControl1_SelectedNodeChanged;
             // 
@@ -334,6 +374,13 @@
             labelAdmin.Text = "ADMIN";
             labelAdmin.Visible = false;
             // 
+            // openInPowershellToolStripMenuItem
+            // 
+            openInPowershellToolStripMenuItem.Name = "openInPowershellToolStripMenuItem";
+            openInPowershellToolStripMenuItem.Size = new System.Drawing.Size(229, 22);
+            openInPowershellToolStripMenuItem.Text = "Open in Windows PowerShell";
+            openInPowershellToolStripMenuItem.Click += OpenInPowershellToolStripMenuItem_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -361,6 +408,7 @@
             MinimumSize = new System.Drawing.Size(800, 250);
             Name = "Form1";
             Text = "FolderSize";
+            contextMenuStrip1.ResumeLayout(false);
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -396,6 +444,12 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Button buttonRestartAdmin;
         private System.Windows.Forms.Label labelAdmin;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem openInWindowsExplorerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openInCommandPromptToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem propertiesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openInPowershellToolStripMenuItem;
     }
 }
 

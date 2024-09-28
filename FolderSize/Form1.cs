@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
 using System.Threading;
@@ -101,6 +102,13 @@ namespace FolderSize
             taskIsRunningVM.TaskIsRunning = false;
         }
 
+        private readonly struct NodeInfo(MyDirInfo dirInfo, TreeNode treeNode, Node treeMapNode)
+        {
+            public readonly MyDirInfo DirInfo = dirInfo;
+            public readonly TreeNode TreeNode = treeNode;
+            public readonly Node TreeMapNode = treeMapNode;
+        };
+
         private void UpdateTrees(uint i_maxLevel)
         {
             treeView1.BeginUpdate();
@@ -109,14 +117,18 @@ namespace FolderSize
             treeView1.Nodes.Clear();
             treemapControl1.Clear();
 
+            treeView1.Tag = null;
+            treemapControl1.Tag = null;
+
             if (m_info != null)
             {
                 uint level = 0;
                 var rootNode = CreateNewTreeNode(m_info, level);
                 var treeMapNode = CreateNewTreeMapNode(m_info, level, i_maxLevel);
 
-                rootNode.Tag = treeMapNode;
-                treeMapNode.Tag = rootNode;
+                NodeInfo nodeInfo = new(m_info, rootNode, treeMapNode);
+                rootNode.Tag = nodeInfo;
+                treeMapNode.Tag = nodeInfo;
 
                 InsertSubDirs(rootNode, treeMapNode, m_info, level + 1, i_maxLevel);
 
@@ -130,7 +142,7 @@ namespace FolderSize
             treeView1.EndUpdate();
         }
 
-        private static TreeNode CreateNewTreeNode(MyDirInfo info, uint level)
+        private TreeNode CreateNewTreeNode(MyDirInfo info, uint level)
         {
             string link = !string.IsNullOrEmpty(info.LinkTarget) ? $" ({info.LinkTarget})" : (info.IsReparsePoint ? " (<ReparsePoint>)" : string.Empty);
             string exception = info.HasException ? " (*)" : "";
@@ -138,7 +150,8 @@ namespace FolderSize
 
             var newNode = new TreeNode(name)
             {
-                ToolTipText = GetTooltip(info)
+                ToolTipText = GetTooltip(info),
+                ContextMenuStrip = contextMenuStrip1
             };
             if (info.IsReparsePoint)
             {
@@ -183,8 +196,9 @@ namespace FolderSize
                     var treeNode = CreateNewTreeNode(info, i_level);
                     var treeMapNode = CreateNewTreeMapNode(info, i_level, i_maxLevel);
 
-                    treeNode.Tag = treeMapNode;
-                    treeMapNode.Tag = treeNode;
+                    NodeInfo nodeInfo = new(info, treeNode, treeMapNode);
+                    treeNode.Tag = nodeInfo;
+                    treeMapNode.Tag = nodeInfo;
 
                     i_node.Nodes.Add(treeNode);
                     i_mapnode.Nodes.Add(treeMapNode);
@@ -345,7 +359,7 @@ namespace FolderSize
 
                 if (treemapControl1.SelectedNode is Node node)
                 {
-                    treeView1.SelectedNode = node.Tag as TreeNode;
+                    treeView1.SelectedNode = (node.Tag as NodeInfo?)?.TreeNode!;
                     treeView1.Invalidate();
                 }
 
@@ -361,7 +375,7 @@ namespace FolderSize
 
                 if (e.Node is TreeNode node)
                 {
-                    var treeMapNode = node.Tag as Node;
+                    var treeMapNode = (node.Tag as NodeInfo?)?.TreeMapNode!;
                     if (treemapControl1.Nodes.Count == 1)
                     {
                         var treeMapCurrentRoot = treemapControl1.Nodes[0];
@@ -441,5 +455,110 @@ namespace FolderSize
         }
 
         #endregion
+
+        private static NodeInfo? GetNodeInfoFromToolStripMenu(object sender)
+        {
+            NodeInfo? node = null;
+            if (sender is ToolStripMenuItem toolStripMenuItem)
+            {
+                if (toolStripMenuItem.Owner is ContextMenuStrip menuStrip)
+                {
+                    if (menuStrip.SourceControl is TreeView treeView)
+                    {
+                        var pt = treeView.PointToClient(menuStrip.Location);
+                        var item = treeView.HitTest(pt);
+                        node = item?.Node?.Tag as NodeInfo?;
+                    }
+                    else if (menuStrip.SourceControl is TreemapControl treemapControl)
+                    {
+                        var item = treemapControl.Tag as Node;
+                        node = item?.Tag as NodeInfo?;
+                        treemapControl.Tag = null;
+                    }
+                }
+            }
+            return node;
+        }
+
+        private void OpenInWindowsExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
+            {
+                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                if (Directory.Exists(DirName))
+                {
+                    var psi = new ProcessStartInfo("explorer.exe", DirName)
+                    {
+                        WorkingDirectory = DirName
+                    };
+                    Process.Start(psi);
+                }
+            }
+        }
+
+        private void OpenInCommandPromptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
+            {
+                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                if (Directory.Exists(DirName))
+                {
+                    var psi = new ProcessStartInfo("cmd.exe")
+                    {
+                        WorkingDirectory = DirName
+                    };
+                    Process.Start(psi);
+                }
+            }
+        }
+
+        private void OpenInPowershellToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
+            {
+                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                if (Directory.Exists(DirName))
+                {
+                    var psi = new ProcessStartInfo("powershell.exe")
+                    {
+                        WorkingDirectory = DirName
+                    };
+                    Process.Start(psi);
+                }
+            }
+        }
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+        private static extern int SHObjectProperties(nint hwnd, uint shopObjectType, string pszObjectName, string pszPropertyPage);
+#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+        private void PropertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
+            {
+                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                if (Directory.Exists(DirName))
+                {
+                    _ = SHObjectProperties(nint.Zero, 0x2/*SHOP_FILEPATH*/, DirName, null);
+                }
+            }
+        }
+
+        private void TreemapControl1_NodeMouseUp(object sender, NodeMouseEventArgs nodeMouseEventArgs)
+        {
+            if (nodeMouseEventArgs.Button == MouseButtons.Right)
+            {
+                if (nodeMouseEventArgs.Node != null)
+                {
+                    //This Tag is reset in GetNodeInfoFromToolStripMenu.
+                    treemapControl1.Tag = nodeMouseEventArgs.Node;
+                    contextMenuStrip1.Show(treemapControl1, nodeMouseEventArgs.Location);
+                }
+            }
+        }
     }
 }
