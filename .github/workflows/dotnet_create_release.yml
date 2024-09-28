@@ -1,0 +1,77 @@
+name: Build And Create Release
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+  build:
+  
+    runs-on: windows-latest
+
+    # Enable 'contents: write' permissions for 'release-action'
+    permissions:
+      contents: write
+  
+    steps:
+
+    - uses: actions/checkout@v3
+  
+    - name: Setup the environment
+      run: |
+          echo "ZIP_FILENAME=${{ github.event.repository.name }}-${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "PUBLISH_DIR=${{ github.workspace }}/publish" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Publish
+      run: dotnet publish --no-build --configuration Release --property:PublishDir=${{ env.PUBLISH_DIR }}
+
+    - name: Create zip and hash artifacts
+      # This file naming convention is required to force a specific sort order in released packages.
+      # The desired order is: application.zip, debug-symbols.zip, sha256
+      # But the default sort order is: commonfile-arg1.ext, commonfile-arg2.ext, commonfile.ext1, commonfile.ext2
+      # instead of being: commonfile.ext1, commonfile.ext2, commonfile-arg1.ext, commonfile-arg2.ext
+      #
+      # Default shell is pswh.exe, but pwsh.exe can't correctly manage -x!*.pdb parameter to exclude files; need to create a temporary listfile.
+      # 7z a -tzip -x!*.pdb ${{ env.ZIP_FILENAME }}-application.zip ${{ env.PUBLISH_DIR }}/*
+      # Using 'shell: cmd' enables 'errorlevel' support
+      run: |
+          echo Creating artifacts
+          echo *.pdb > excludepdb
+          echo.
+          echo 7z a -tzip -x@excludepdb ${{ env.ZIP_FILENAME }}-application.zip ${{ env.PUBLISH_DIR }}/*
+          7z a -tzip -x@excludepdb ${{ env.ZIP_FILENAME }}-application.zip ${{ env.PUBLISH_DIR }}/*
+          if %errorlevel% neq 0 exit 1
+          echo.
+          echo *************************************
+          echo.
+          echo 7z a -tzip ${{ env.ZIP_FILENAME }}-debug-symbols.zip ${{ env.PUBLISH_DIR }}/*.pdb
+          7z a -tzip ${{ env.ZIP_FILENAME }}-debug-symbols.zip ${{ env.PUBLISH_DIR }}/*.pdb
+          if %errorlevel% neq 0 exit 1
+          echo.
+          echo *************************************
+          echo.
+          echo 7z a -thash ${{ env.ZIP_FILENAME }}.sha256 ${{ env.ZIP_FILENAME }}*.zip
+          7z a -thash ${{ env.ZIP_FILENAME }}.sha256 ${{ env.ZIP_FILENAME }}*.zip
+          if %errorlevel% neq 0 exit 1
+      shell: cmd
+
+    - name: Upload artifacts to Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "${{ env.ZIP_FILENAME }}-application.zip,${{ env.ZIP_FILENAME }}-debug-symbols.zip,${{ env.ZIP_FILENAME }}.sha256"
+        generateReleaseNotes: true
+        body: "Download the application from [${{ env.ZIP_FILENAME }}-application.zip](${{ github.event.repository.url }}/releases/download/${{ github.ref_name }}/${{ env.ZIP_FILENAME }}-application.zip)"
+
