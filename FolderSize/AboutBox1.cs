@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Windows.Forms;
+﻿using System.Reflection;
 
 namespace FolderSize
 {

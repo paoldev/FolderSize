@@ -1,15 +1,10 @@
 ﻿using Microsoft.Research.CommunityTechnologies.Treemap;
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace FolderSize
 {
