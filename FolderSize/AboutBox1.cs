@@ -1,4 +1,13 @@
-﻿using System.Reflection;
+﻿//
+// FolderSize
+//
+// Copyright (c) 2012-2025 paoldev
+//
+// Licensed under the MIT license.
+// SPDX-License-Identifier: MIT
+//
+
+using System.Reflection;
 
 namespace FolderSize
 {
