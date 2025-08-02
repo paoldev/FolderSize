@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.Text;
 
 namespace FolderSize
@@ -32,7 +31,7 @@ namespace FolderSize
             checkBoxSyncViews.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
             buttonRestartAdmin.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
 
-            bool bIsAdministator = IsAdministrator();
+            bool bIsAdministator = ApplicationHelpers.IsAdministrator();
             labelAdmin.Visible = bIsAdministator;
             buttonRestartAdmin.Visible = !bIsAdministator;
         }
@@ -420,36 +419,10 @@ namespace FolderSize
             Application.Exit();
         }
 
-        #region Administrator
-
         private void ButtonRestartAdmin_Click(object sender, EventArgs e)
         {
-            ProcessStartInfo currentStartInfo = new(Application.ExecutablePath, Environment.GetCommandLineArgs()[1..])
-            {
-                Verb = "runas",
-                UseShellExecute = true
-            };
-
-            Application.Exit();
-            try
-            {
-                // Operation may be cancelled by the user, in which case a Win32Exception is triggered.
-                Process.Start(currentStartInfo);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            ApplicationHelpers.RestartAsAdministrator();
         }
-
-        private static bool IsAdministrator()
-        {
-            using var winIdentity = WindowsIdentity.GetCurrent();
-            var winPrincipal = new WindowsPrincipal(winIdentity);
-            return winPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
-        #endregion
 
         private static NodeInfo? GetNodeInfoFromToolStripMenu(object sender)
         {
