@@ -7,9 +7,9 @@
         public Int64 TotalFileSize => DirFileSize + SubDirsFileSize;
         public Int64 NumFiles = 0;
         public Int64 NumDirs = 0;
-        public string Name;
-        public string FullName;
-        public string LinkTarget = null;
+        public string Name = string.Empty;
+        public string FullName = string.Empty;
+        public string? LinkTarget = null;
         public bool IsDummyFolder = false;
         public bool HasException = false;
         public bool IsReparsePoint = false;
@@ -123,11 +123,11 @@
             return newInfo;
         }
 
-        public static Task<(MyDirInfo, uint)> GetDirectoryInfoAsync(string i_fullname, IProgress<ProgressValue?> i_progress, CancellationToken token)
+        public static Task<(MyDirInfo?, uint)> GetDirectoryInfoAsync(string i_fullname, IProgress<ProgressValue?> i_progress, CancellationToken token)
         {
             return Task.Run(() =>
             {
-                MyDirInfo info = null;
+                MyDirInfo? info = null;
                 uint maxLevel = 1;
 
                 try

@@ -10,7 +10,7 @@ namespace FolderSize
 {
     public partial class Form1 : Form
     {
-        MyDirInfo m_info;
+        MyDirInfo? m_info = null;
 
         public Form1()
         {
@@ -229,7 +229,7 @@ namespace FolderSize
             }
         }
 
-        CancellationTokenSource tokenSource = null;
+        CancellationTokenSource? tokenSource = null;
         DateTime taskStart = DateTime.MinValue;
 
         public class TaskIsRunningVM : INotifyPropertyChanged
@@ -258,7 +258,7 @@ namespace FolderSize
                 }
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangedEventHandler? PropertyChanged;
         }
         private readonly TaskIsRunningVM taskIsRunningVM = new();
 
@@ -479,7 +479,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
                     Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
                 if (Directory.Exists(DirName))
                 {
@@ -496,7 +496,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
                     Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
                 if (Directory.Exists(DirName))
                 {
@@ -513,7 +513,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
                     Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
                 if (Directory.Exists(DirName))
                 {
@@ -528,13 +528,13 @@ namespace FolderSize
 
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
-        private static extern int SHObjectProperties(nint hwnd, uint shopObjectType, string pszObjectName, string pszPropertyPage);
+        private static extern int SHObjectProperties(nint hwnd, uint shopObjectType, string? pszObjectName, string? pszPropertyPage);
 #pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
         private void PropertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string DirName = nodeInfo.DirInfo.IsDummyFolder ?
+                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
                     Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
                 if (Directory.Exists(DirName))
                 {
