@@ -16,7 +16,7 @@ jobs:
   
     steps:
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v5
   
     - name: Setup the environment
       run: |
@@ -25,9 +25,9 @@ jobs:
       shell: bash
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 10.0.x
 
     - name: Restore dependencies
       run: dotnet restore
@@ -69,7 +69,7 @@ jobs:
       shell: cmd
 
     - name: Upload artifacts to Release
-      uses: ncipollo/release-action@v1
+      uses: ncipollo/release-action@v1.20.0
       with:
         artifacts: "${{ env.ZIP_FILENAME }}-application.zip,${{ env.ZIP_FILENAME }}-debug-symbols.zip,${{ env.ZIP_FILENAME }}.sha256"
         generateReleaseNotes: true
