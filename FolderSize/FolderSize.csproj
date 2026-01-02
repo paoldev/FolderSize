@@ -24,7 +24,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <Authors>paoldev</Authors>
-    <Copyright>(C) 2012-2025</Copyright>
+    <Copyright>(C) 2012-2026</Copyright>
     <Description>This application graphically displays how much space each folder takes up on the disk drives.</Description>
     <Title>Folder Size</Title>
     <RepositoryType>git</RepositoryType>
