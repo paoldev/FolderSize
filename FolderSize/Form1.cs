@@ -125,6 +125,7 @@ namespace FolderSize
             public readonly MyDirInfo DirInfo = dirInfo;
             public readonly TreeNode TreeNode = treeNode;
             public readonly Node TreeMapNode = treeMapNode;
+            public readonly string? DirFullName = dirInfo.IsDummyFolder ? Path.GetDirectoryName(dirInfo.FullName) : dirInfo.FullName;
         };
 
         private void UpdateTrees(uint i_maxLevel)
@@ -476,8 +477,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
-                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                string? DirName = nodeInfo.DirFullName;
                 if (Directory.Exists(DirName))
                 {
                     var psi = new ProcessStartInfo("explorer.exe", DirName)
@@ -493,8 +493,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
-                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                string? DirName = nodeInfo.DirFullName;
                 if (Directory.Exists(DirName))
                 {
                     var psi = new ProcessStartInfo("cmd.exe")
@@ -510,8 +509,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
-                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                string? DirName = nodeInfo.DirFullName;
                 if (Directory.Exists(DirName))
                 {
                     var psi = new ProcessStartInfo("powershell.exe")
@@ -531,8 +529,7 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirInfo.IsDummyFolder ?
-                    Path.GetDirectoryName(nodeInfo.DirInfo.FullName) : nodeInfo.DirInfo.FullName;
+                string? DirName = nodeInfo.DirFullName;
                 if (Directory.Exists(DirName))
                 {
                     _ = SHObjectProperties(nint.Zero, 0x2/*SHOP_FILEPATH*/, DirName, null);
