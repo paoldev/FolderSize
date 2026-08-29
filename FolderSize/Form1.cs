@@ -40,10 +40,10 @@ namespace FolderSize
             checkBoxSyncViews.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
             buttonRestartAdmin.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
 
-            bool bIsAdministator = ApplicationHelpers.IsAdministrator();
-            labelAdmin.Visible = bIsAdministator;
-            buttonRestartAdmin.Visible = !bIsAdministator;
-            if (bIsAdministator)
+            bool bIsAdministrator = ApplicationHelpers.IsAdministrator();
+            labelAdmin.Visible = bIsAdministrator;
+            buttonRestartAdmin.Visible = !bIsAdministrator;
+            if (bIsAdministrator)
             {
                 int right = checkBoxFastMode.Right;
                 checkBoxFastMode.Text = "Try Fast Mode";
