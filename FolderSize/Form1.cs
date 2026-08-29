@@ -297,7 +297,7 @@ namespace FolderSize
 
         private void UpdateElapsedTime()
         {
-            labelElapsedTime.Text = (DateTime.Now - taskStart).ToString();
+            labelElapsedTime.Text = (DateTime.Now - taskStart).ToString(@"hh\:mm\:ss\.fff");
         }
 
         #region Treemap control
