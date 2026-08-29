@@ -43,6 +43,19 @@ namespace FolderSize
             bool bIsAdministator = ApplicationHelpers.IsAdministrator();
             labelAdmin.Visible = bIsAdministator;
             buttonRestartAdmin.Visible = !bIsAdministator;
+            if (bIsAdministator)
+            {
+                int right = checkBoxFastMode.Right;
+                checkBoxFastMode.Text = "Try Fast Mode";
+                checkBoxFastMode.Left = right - checkBoxFastMode.Width;
+                checkBoxFastMode.Checked = true;
+                checkBoxFastMode.DataBindings.Add("Enabled", taskIsRunningVM, "TaskIsNotRunning");
+            }
+            else
+            {
+                checkBoxFastMode.Checked = false;
+                checkBoxFastMode.Enabled = false;
+            }
         }
 
         private async void SelectDrive_SelectedIndexChanged(object sender, EventArgs e)
@@ -82,6 +95,7 @@ namespace FolderSize
                         progressBar1.Value = v.NumDirs;
                         labelTotalSize.Text = $"{GetNumStringWithSep(v.DirsSize)} bytes ({GetSizeAsShortString(v.DirsSize)})";
                         labelNumFolders.Text = $"{GetNumStringWithSep(v.NumDirs)} / {GetNumStringWithSep(v.TotalDirs)}";
+                        labelProgressInfo.Text = v.ProgressInfo;
                     }
                 }
                 else
@@ -89,13 +103,14 @@ namespace FolderSize
                     progressBar1.Value = progressBar1.Maximum;
                     labelTotalSize.Text = (m_info == null) ? "0" : $"{GetNumStringWithSep(m_info.TotalFileSize)} bytes ({GetSizeAsShortString(m_info.TotalFileSize)})";
                     labelNumFolders.Text = $"{GetNumStringWithSep(progressBar1.Value)} / {GetNumStringWithSep(progressBar1.Maximum)}";
+                    labelProgressInfo.Text = string.Empty;
 
                     UpdateTrees(maxLevel);
                 }
             });
 
             tokenSource = new CancellationTokenSource();
-            (m_info, maxLevel) = await MyDirInfo.GetDirectoryInfoAsync(sStartDirectory, progress, tokenSource.Token);
+            (m_info, maxLevel) = await MyDirInfo.GetDirectoryInfoAsync(sStartDirectory, checkBoxFastMode.Checked, progress, tokenSource.Token);
             await Task.Run(() => { progress.Report(null); });
             tokenSource = null;
 
@@ -149,7 +164,7 @@ namespace FolderSize
         {
             string link = !string.IsNullOrEmpty(info.LinkTarget) ? $" ({info.LinkTarget})" : (info.IsReparsePoint ? " (<ReparsePoint>)" : string.Empty);
             string exception = info.HasException ? " (*)" : "";
-            string name = (level == 0) ? info.Name : (info.Name + link + exception + "       " + GetSizeAsShortString(info.TotalFileSize));
+            string name = (level == 0) ? info.FullName : (info.Name + link + exception + "       " + GetSizeAsShortString(info.TotalFileSize));
 
             var newNode = new TreeNode(name)
             {
@@ -173,7 +188,7 @@ namespace FolderSize
 
         private Node CreateNewTreeMapNode(MyDirInfo info, uint level, uint maxLevel)
         {
-            return new Node(info.Name, info.TotalFileSize, LevelToColor(level, maxLevel), null, GetTooltip(info));
+            return new Node((level == 0) ? info.FullName : info.Name, info.TotalFileSize, LevelToColor(level, maxLevel), null, GetTooltip(info));
         }
 
         private static string GetTooltip(MyDirInfo info)
@@ -214,11 +229,11 @@ namespace FolderSize
         // Although only English UI is available, use CurrentCulture to get thousands' separator.
         private static string GetNumStringWithSep<T>(T v) => string.Format(CultureInfo.CurrentCulture, "{0:##,0}", v);
 
-        private static string GetSizeAsShortString(long size)
+        private static string GetSizeAsShortString(ulong size)
         {
-            const long OneGB = 1024 * 1024 * 1024;
-            const long OneMB = 1024 * 1024;
-            const long OneKB = 1024;
+            const ulong OneGB = 1024 * 1024 * 1024;
+            const ulong OneMB = 1024 * 1024;
+            const ulong OneKB = 1024;
             if (size >= OneGB)
             {
                 return (size / 1024.0 / 1024.0 / 1024.0).ToString("F1") + " GB";

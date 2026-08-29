@@ -11,9 +11,9 @@ namespace FolderSize
 {
     public class MyDirInfo
     {
-        public Int64 DirFileSize = 0;
-        public Int64 SubDirsFileSize = 0;
-        public Int64 TotalFileSize => DirFileSize + SubDirsFileSize;
+        public UInt64 DirFileSize = 0;
+        public UInt64 SubDirsFileSize = 0;
+        public UInt64 TotalFileSize => DirFileSize + SubDirsFileSize;
         public Int64 NumFiles = 0;
         public Int64 NumDirs = 0;
         public string Name = string.Empty;
@@ -25,16 +25,27 @@ namespace FolderSize
 
         public List<MyDirInfo> SubDirs = [];
 
+        private static readonly string DummyFilesFolder = "<Files>";
+
         public struct ProgressValue
         {
             public int NumDirs;
             public int TotalDirs;
-            public Int64 DirsSize;
+            public UInt64 DirsSize;
+            public string ProgressInfo;
+
+            public void Reset()
+            {
+                NumDirs = 0;
+                TotalDirs = 1;
+                DirsSize = 0;
+                ProgressInfo = string.Empty;
+            }
         };
 
         private MyDirInfo() { }
 
-        private static MyDirInfo GetDirectoryInfo(System.IO.DirectoryInfo i_dirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_level, ref uint o_maxLevel, CancellationToken token)
+        private static MyDirInfo GetDirectoryInfo(IFileSystemEntry i_dirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_level, ref uint o_maxLevel, CancellationToken token)
         {
             o_maxLevel = Math.Max(i_level, o_maxLevel);
 
@@ -58,8 +69,8 @@ namespace FolderSize
                 return newInfo;
             }
 
-            System.IO.DirectoryInfo[] dirs;
-            System.IO.FileInfo[] files;
+            IFileSystemEntry[] dirs;
+            IFileSystemEntry[] files;
             try
             {
                 dirs = i_dirInfo.GetDirectories();
@@ -73,7 +84,7 @@ namespace FolderSize
 
             newInfo.NumDirs = dirs.Length;
             newInfo.NumFiles = files.Length;
-            foreach (System.IO.FileInfo file in files)
+            foreach (var file in files)
             {
                 newInfo.DirFileSize += file.Length;
             }
@@ -94,11 +105,10 @@ namespace FolderSize
             if (newInfo.DirFileSize > 0)
             {
                 //Dummy directory containing total file size.
-                const string dummyFolderName = "<files>";
                 MyDirInfo subInfo = new()
                 {
-                    Name = dummyFolderName,
-                    FullName = System.IO.Path.Combine(i_dirInfo.FullName, dummyFolderName),
+                    Name = DummyFilesFolder,
+                    FullName = System.IO.Path.Join(i_dirInfo.FullName, DummyFilesFolder),
                     DirFileSize = newInfo.DirFileSize,
                     SubDirsFileSize = 0,
                     NumFiles = newInfo.NumFiles,
@@ -109,7 +119,7 @@ namespace FolderSize
                 newInfo.SubDirs.Add(subInfo);
             }
 
-            foreach (System.IO.DirectoryInfo dir in dirs)
+            foreach (var dir in dirs)
             {
                 MyDirInfo subInfo = GetDirectoryInfo(dir, i_progress, ref i_progValue, i_level + 1, ref o_maxLevel, token);
 
@@ -132,7 +142,7 @@ namespace FolderSize
             return newInfo;
         }
 
-        public static Task<(MyDirInfo?, uint)> GetDirectoryInfoAsync(string i_fullname, IProgress<ProgressValue?> i_progress, CancellationToken token)
+        public static Task<(MyDirInfo?, uint)> GetDirectoryInfoAsync(string i_fullname, bool bTryFastOption, IProgress<ProgressValue?> i_progress, CancellationToken token)
         {
             return Task.Run(() =>
             {
@@ -141,16 +151,42 @@ namespace FolderSize
 
                 try
                 {
-                    uint level = 1;
-
-                    ProgressValue progValue = new()
+                    ProgressValue progValue = new();
+                    if (bTryFastOption)
                     {
-                        NumDirs = 0,
-                        TotalDirs = 1,
-                        DirsSize = 0
-                    };
-                    System.IO.DirectoryInfo dirInfo = new(i_fullname);
-                    info = GetDirectoryInfo(dirInfo, i_progress, ref progValue, level, ref maxLevel, token);
+                        progValue.Reset();
+                        progValue.ProgressInfo = $"Pre-scanning {i_fullname}";
+                        i_progress.Report(progValue);
+                        try
+                        {
+                            IFileSystemEntry? fileEntry = MinimalNtfsMFTReader.GetFileSystemEntry(i_fullname, i_progress, ref progValue, token);
+                            if (fileEntry != null)
+                            {
+                                // Reset the counters
+                                progValue.Reset();
+                                progValue.ProgressInfo = $"Scanning {fileEntry.FullName}";
+                                i_progress.Report(progValue);
+                                info = GetDirectoryInfo(fileEntry, i_progress, ref progValue, i_level: 1, ref maxLevel, token);
+
+                                // Force GC
+                                fileEntry = null;
+                                GC.Collect();
+                            }
+                        }
+                        catch
+                        {
+                            info = null;
+                        }
+                    }
+                    if (info == null)
+                    {
+                        maxLevel = 1;
+                        progValue.Reset();
+                        progValue.ProgressInfo = $"Scanning {i_fullname}";
+                        i_progress.Report(progValue);
+                        System.IO.DirectoryInfo dirInfo = new(i_fullname);
+                        info = GetDirectoryInfo(new NativeFileSystemEntry(dirInfo), i_progress, ref progValue, i_level: 1, ref maxLevel, token);
+                    }
                 }
                 catch
                 {
