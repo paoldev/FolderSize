@@ -116,7 +116,7 @@ namespace FolderSize
                         }
                     }
 
-                    MFTFileSystemEntry entry = new(volInfo)
+                    MFTFileSystemEntry entry = new()
                     {
                         FRN = FileReferenceNumber,
                         ParentFRN = ParentFileReferenceNumber,
@@ -142,7 +142,7 @@ namespace FolderSize
             }
 
             // Declare the volume root entry.
-            MFTFileSystemEntry Root = new(volInfo)
+            MFTFileSystemEntry Root = new()
             {
                 Attributes = System.IO.FileAttributes.Directory,   // This field is only used to test if MFTFileSystemEntry is a directory.
                 Name = realVolumeRoot,
@@ -160,44 +160,17 @@ namespace FolderSize
                     }
                     if (kv.Value.IsDir)
                     {
-                        parentEntry.SubDirs.Add(kv.Key);
+                        parentEntry.SubDirs.Add(kv.Value);
                     }
                     else
                     {
-                        parentEntry.Files.Add(kv.Key);
+                        parentEntry.Files.Add(kv.Value);
                     }
                 }
             }
 
-#if true
-            // Fix FullName for SubDirs and Files.
-            var parts = new Stack<string>();
-            var rootPrefix = Root.FullName.TrimEnd(Path.DirectorySeparatorChar);
-            foreach (var kv in volInfo.entries)
-            {
-                parts.Clear();
-
-                ulong FRN = kv.Key;
-                while (volInfo.entries.TryGetValue(FRN, out var entry))
-                {
-                    if (string.IsNullOrEmpty(entry.Name) || entry.Name == ".")
-                    {
-                        break;
-                    }
-
-                    parts.Push(entry.Name);
-                    if (entry.ParentFRN == FRN)
-                    {
-                        break; // Prevent infinite loop
-                    }
-                    FRN = entry.ParentFRN;
-                }
-                parts.Push(rootPrefix);
-                kv.Value.FullName = string.Join(Path.DirectorySeparatorChar, parts);
-            }
-#else
             // Fix FullName for SubDirs, then for Files.
-            FixSubDirFullpath(volInfo, Root, string.Empty);
+            FixSubDirFullNames(Root, string.Empty);
             foreach (var kv in volInfo.entries)
             {
                 if (!kv.Value.IsDir)
@@ -209,7 +182,6 @@ namespace FolderSize
                     kv.Value.FullName = Path.Join(parentEntry.FullName, kv.Value.Name);
                 }
             }
-#endif
 
             // Usually 'volumeRootMapping' is the path root, so this call should never fail.
             if (FindEntry(Root, volumeRootMapping) is MFTFileSystemEntry rootMappingEntry)
@@ -219,7 +191,7 @@ namespace FolderSize
                 {
                     rootMappingEntry.Name = volumeRoot;
                     //rootMappingEntry.Parent = null; // TODO: here detach the Parent directory in case it will be added to IFileSystemEntry interface.
-                    FixSubDirAndFileFullNames(volInfo, rootMappingEntry, string.Empty);
+                    FixSubDirAndFileFullNames(rootMappingEntry, string.Empty);
                 }
                 return FindEntry(rootMappingEntry, fileName);
             }
@@ -228,38 +200,37 @@ namespace FolderSize
             return null;
         }
 
-        private static void FixSubDirFullNames(VolumeInfo volInfo, MFTFileSystemEntry dir, string parent)
+        private static void FixSubDirFullNames(MFTFileSystemEntry dir, string parent)
         {
             dir.FullName = Path.Join(parent, dir.Name);
             foreach (var subdir in dir.SubDirs)
             {
-                FixSubDirFullNames(volInfo, volInfo.entries[subdir], dir.FullName);
+                FixSubDirFullNames(subdir, dir.FullName);
             }
         }
 
-        private static void FixSubDirAndFileFullNames(VolumeInfo volInfo, MFTFileSystemEntry dir, string parent)
+        private static void FixSubDirAndFileFullNames(MFTFileSystemEntry dir, string parent)
         {
             dir.FullName = Path.Join(parent, dir.Name);
             foreach (var file in dir.Files)
             {
-                var entry = volInfo.entries[file];
-                entry.FullName = Path.Join(dir.FullName, entry.Name);
+                file.FullName = Path.Join(dir.FullName, file.Name);
             }
             foreach (var subdir in dir.SubDirs)
             {
-                FixSubDirAndFileFullNames(volInfo, volInfo.entries[subdir], dir.FullName);
+                FixSubDirAndFileFullNames(subdir, dir.FullName);
             }
         }
 
-        private static IFileSystemEntry? FindEntry(IFileSystemEntry root, string entryFullName)
+        private static MFTFileSystemEntry? FindEntry(MFTFileSystemEntry root, string entryToFind)
         {
-            var fullpath = Path.GetFullPath(entryFullName);
+            var fullpath = Path.GetFullPath(entryToFind);
             var pathComponents = fullpath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries).ToList();
             pathComponents.RemoveAt(0);   //The root should already match with first pathComponent.
-            IFileSystemEntry? entry = root;
+            MFTFileSystemEntry? entry = root;
             foreach (var pathComponent in pathComponents)
             {
-                entry = entry.GetDirectories().FirstOrDefault(d => d.Name.Equals(pathComponent, StringComparison.OrdinalIgnoreCase));
+                entry = entry.SubDirs.FirstOrDefault(d => d.Name.Equals(pathComponent, StringComparison.OrdinalIgnoreCase));
                 if (entry == null)
                 {
                     // early rejection: dir not found?
@@ -269,7 +240,7 @@ namespace FolderSize
             return entry;
         }
 
-        private class MFTFileSystemEntry(VolumeInfo volumeInfo) : IFileSystemEntry
+        private class MFTFileSystemEntry : IFileSystemEntry
         {
             // IFileSystemEntry interface
             public string Name { get; set; } = string.Empty;
@@ -279,15 +250,14 @@ namespace FolderSize
             public string? LinkTarget => IsReparsePoint ?
                 (IsDir ? Directory.ResolveLinkTarget(FullName, false)?.ToString() :
                          System.IO.File.ResolveLinkTarget(FullName, false)?.ToString()) : null;
-            public IFileSystemEntry[] GetDirectories() => [.. SubDirs.Select(h => _volumeInfo.entries[h])];
-            public IFileSystemEntry[] GetFiles() => [.. Files.Select(h => _volumeInfo.entries[h])];
+            public IFileSystemEntry[] GetDirectories() => [.. SubDirs];
+            public IFileSystemEntry[] GetFiles() => [.. Files];
 
             // Internal data
             public ulong FRN = 0;
             public ulong ParentFRN = 0;
-            public List<ulong> SubDirs = [];
-            public List<ulong> Files = [];
-            private readonly VolumeInfo _volumeInfo = volumeInfo;
+            public List<MFTFileSystemEntry> SubDirs = [];
+            public List<MFTFileSystemEntry> Files = [];
 
             public bool IsDir => (Attributes & System.IO.FileAttributes.Directory) != 0;
             private bool IsReparsePoint => (Attributes & System.IO.FileAttributes.ReparsePoint) != 0;
