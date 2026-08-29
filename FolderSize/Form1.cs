@@ -473,19 +473,31 @@ namespace FolderSize
             return node;
         }
 
+        private static void StartProcess(string processFullPath, string[] arguments, string? workingDirectory)
+        {
+            try
+            {
+                bool bIsAdministrator = ApplicationHelpers.IsAdministrator();
+                if (Directory.Exists(workingDirectory) && File.Exists(processFullPath))
+                {
+                    var psi = new ProcessStartInfo(processFullPath, arguments)
+                    {
+                        WorkingDirectory = workingDirectory,
+                        Verb = bIsAdministrator ? "runas" : string.Empty
+                    };
+                    Process.Start(psi);
+                }
+            }
+            catch
+            { }
+        }
+
         private void OpenInWindowsExplorerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirFullName;
-                if (Directory.Exists(DirName))
-                {
-                    var psi = new ProcessStartInfo("explorer.exe", DirName)
-                    {
-                        WorkingDirectory = DirName
-                    };
-                    Process.Start(psi);
-                }
+                var processPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
+                StartProcess(processPath, [nodeInfo.DirFullName ?? string.Empty], nodeInfo.DirFullName);
             }
         }
 
@@ -493,15 +505,8 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirFullName;
-                if (Directory.Exists(DirName))
-                {
-                    var psi = new ProcessStartInfo("cmd.exe")
-                    {
-                        WorkingDirectory = DirName
-                    };
-                    Process.Start(psi);
-                }
+                var processPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.System), "cmd.exe");
+                StartProcess(processPath, [], nodeInfo.DirFullName);
             }
         }
 
@@ -509,15 +514,8 @@ namespace FolderSize
         {
             if (GetNodeInfoFromToolStripMenu(sender) is NodeInfo nodeInfo)
             {
-                string? DirName = nodeInfo.DirFullName;
-                if (Directory.Exists(DirName))
-                {
-                    var psi = new ProcessStartInfo("powershell.exe")
-                    {
-                        WorkingDirectory = DirName
-                    };
-                    Process.Start(psi);
-                }
+                var processPath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.System), "WindowsPowerShell", "v1.0", "powershell.exe");
+                StartProcess(processPath, [], nodeInfo.DirFullName);
             }
         }
 
