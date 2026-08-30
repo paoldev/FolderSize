@@ -45,9 +45,9 @@ namespace FolderSize
 
         private MyDirInfo() { }
 
-        private static MyDirInfo GetDirectoryInfo(IFileSystemEntry i_dirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_level, ref uint o_maxLevel, CancellationToken token)
+        private static MyDirInfo GetDirectoryInfo(IFileSystemEntry i_dirInfo, IProgress<ProgressValue?> i_progress, ref ProgressValue i_progValue, uint i_nextLevel, ref uint o_numLevels, CancellationToken token)
         {
-            o_maxLevel = Math.Max(i_level, o_maxLevel);
+            o_numLevels = Math.Max(i_nextLevel, o_numLevels);
 
             var newInfo = new MyDirInfo()
             {
@@ -102,7 +102,7 @@ namespace FolderSize
                 return newInfo;
             }
 
-            if (newInfo.DirFileSize > 0)
+            if (newInfo.NumFiles > 0)
             {
                 //Dummy directory containing total file size.
                 MyDirInfo subInfo = new()
@@ -116,12 +116,13 @@ namespace FolderSize
                     IsDummyFolder = true
                 };
 
+                o_numLevels = Math.Max(i_nextLevel + 1, o_numLevels);
                 newInfo.SubDirs.Add(subInfo);
             }
 
             foreach (var dir in dirs)
             {
-                MyDirInfo subInfo = GetDirectoryInfo(dir, i_progress, ref i_progValue, i_level + 1, ref o_maxLevel, token);
+                MyDirInfo subInfo = GetDirectoryInfo(dir, i_progress, ref i_progValue, i_nextLevel + 1, ref o_numLevels, token);
 
                 newInfo.SubDirsFileSize += subInfo.TotalFileSize;
 
@@ -147,11 +148,12 @@ namespace FolderSize
             return Task.Run(() =>
             {
                 MyDirInfo? info = null;
-                uint maxLevel = 1;
+                uint numLevels = 0;
 
                 try
                 {
                     ProgressValue progValue = new();
+                    IFileSystemEntry? fileEntry = null;
                     if (bTryFastOption)
                     {
                         progValue.Reset();
@@ -159,40 +161,34 @@ namespace FolderSize
                         i_progress.Report(progValue);
                         try
                         {
-                            IFileSystemEntry? fileEntry = MinimalNtfsMFTReader.GetFileSystemEntry(i_fullname, i_progress, ref progValue, token);
-                            if (fileEntry != null)
-                            {
-                                // Reset the counters
-                                progValue.Reset();
-                                progValue.ProgressInfo = $"Scanning {fileEntry.FullName}";
-                                i_progress.Report(progValue);
-                                info = GetDirectoryInfo(fileEntry, i_progress, ref progValue, i_level: 1, ref maxLevel, token);
-
-                                // Force GC
-                                fileEntry = null;
-                                GC.Collect();
-                            }
+                            fileEntry = MinimalNtfsMFTReader.GetFileSystemEntry(i_fullname, i_progress, ref progValue, token);
                         }
                         catch
                         {
-                            info = null;
+                            fileEntry = null;
                         }
                     }
-                    if (info == null)
+
+                    if (!token.IsCancellationRequested)
                     {
-                        maxLevel = 1;
+                        fileEntry ??= new NativeFileSystemEntry(new DirectoryInfo(i_fullname));
+
                         progValue.Reset();
-                        progValue.ProgressInfo = $"Scanning {i_fullname}";
+                        progValue.ProgressInfo = $"Scanning {fileEntry.FullName}";
                         i_progress.Report(progValue);
-                        System.IO.DirectoryInfo dirInfo = new(i_fullname);
-                        info = GetDirectoryInfo(new NativeFileSystemEntry(dirInfo), i_progress, ref progValue, i_level: 1, ref maxLevel, token);
+                        info = GetDirectoryInfo(fileEntry, i_progress, ref progValue, i_nextLevel: 1, ref numLevels, token);
                     }
+
+                    // Force GC
+                    fileEntry = null;
+                    GC.Collect();
                 }
                 catch
                 {
+                    info = null;
                 }
 
-                return (info, maxLevel);
+                return (info, info != null ? numLevels : 0);
             });
         }
     };
