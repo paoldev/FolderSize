@@ -75,6 +75,7 @@ namespace FolderSize
             labelTotalSize.Update();
             labelNumFolders.Text = "0";
             labelNumFolders.Update();
+            labelElapsedTime.Text = string.Empty;
 
             taskStart = DateTime.Now;
             timerTaskDuration.Start();
@@ -109,6 +110,7 @@ namespace FolderSize
             });
 
             tokenSource = new CancellationTokenSource();
+            await Task.Run(() => { progress.Report(null); });   // Free memory before starting a new disk enumeration
             (dirInfo, numLevels) = await MyDirInfo.GetDirectoryInfoAsync(sStartDirectory, checkBoxFastMode.Checked, progress, tokenSource.Token);
             await Task.Run(() => { progress.Report(null); });
             tokenSource = null;
